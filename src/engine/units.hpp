@@ -46,7 +46,7 @@ public:
     }
 
     constexpr Unit& operator-=(const Unit& rhs) {
-        num_ += rhs.num_;
+        num_ -= rhs.num_;
         return *this;
     }
 
@@ -64,7 +64,7 @@ public:
     }
 
     constexpr Unit& operator-=(const Num& num) {
-        num_ *= num;
+        num_ -= num;
         return *this;
     }
 
@@ -160,6 +160,7 @@ auto operator/(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] / r
 
 template<SomeUnit T>
 auto Normalize(const Vector<T>& t) {
+    assert(*t.Len() > 0.);
     return t / t.Len();
 }
 

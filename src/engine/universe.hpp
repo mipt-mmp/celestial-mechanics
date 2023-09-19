@@ -4,7 +4,7 @@
 #include "materialpoint.hpp"
 namespace phys {
 
-const Time defaultDeltaTime = 1e3_sec;
+const Time defaultDeltaTime = 1e4_sec;
 
 class Universe {
     std::vector<MaterialPoint*> mps_;

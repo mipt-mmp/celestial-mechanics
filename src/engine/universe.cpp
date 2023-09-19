@@ -15,8 +15,10 @@ void Universe::applyGravitation() {
     for(size_t i = 0; i < mps_.size(); ++i) {
         for(size_t j = 0; j < mps_.size(); ++j) {
             if(i == j) continue;
-            auto direction = Normalize(mps_[i]->getPos() - mps_[j]->getPos());
+            auto direction = -Normalize(mps_[i]->getPos() - mps_[j]->getPos());
+            assert(std::abs(*direction.Len2() - 1) < 1e-4l);
             auto dist      =          (mps_[i]->getPos() - mps_[j]->getPos()).Len2();
+            assert(*dist > 0.l);
             Force f = direction * phys::consts::G * mps_[i]->getMass() * mps_[j]->getMass() / dist;
             mps_[i]->applyForce(f);
         }

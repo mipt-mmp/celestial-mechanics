@@ -6,6 +6,9 @@ qt_add_executable(celestial
     main.cpp
     mainwindow.cpp
     mainwindow.hpp
+    mainwindow.cpp mainwindow.ui
+    universedisplayer.hpp universedisplayer.cpp
+    celestial.hpp celestial.cpp
 )
 
 target_link_libraries(celestial PRIVATE phys Qt6::Core Qt6::Widgets)
