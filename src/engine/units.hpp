@@ -94,7 +94,14 @@ constexpr auto operator/(const Unit<Num, Meter1, Sec1, KG1, K1, Mole1, Ampere1, 
 template<typename Num, int Meter , int Sec, int KG, int K, int Mole, int Ampere, int Candela>
 constexpr auto sqrt(const Unit<Num, Meter, Sec, KG, K, Mole, Ampere, Candela>& u) -> Unit<Num, Meter/2, Sec/2, KG/2, K/2, Mole/2, Ampere/2, Candela/2>
 {
-    return Unit<Num, Meter, Sec, KG, K, Mole, Ampere, Candela>{std::sqrt(u)};
+    static_assert(Meter   % 2 == 0, "Bad sqrt");
+    static_assert(Sec     % 2 == 0, "Bad sqrt");
+    static_assert(KG      % 2 == 0, "Bad sqrt");
+    static_assert(K       % 2 == 0, "Bad sqrt");
+    static_assert(Mole    % 2 == 0, "Bad sqrt");
+    static_assert(Ampere  % 2 == 0, "Bad sqrt");
+    static_assert(Candela % 2 == 0, "Bad sqrt");
+    return Unit<Num, Meter/2, Sec/2, KG/2, K/2, Mole/2, Ampere/2, Candela/2>{std::sqrt(*u)};
 }
 
 template<SomeUnit T>
@@ -120,15 +127,41 @@ using MassVal         = Unit<num_t, 0, 0, 1>;   // kg
 
 using Length = LengthVal;
 
-using Position = geom::Vector<LengthVal, UniverseDim, UnitTraits>;
-using Distance = geom::Vector<LengthVal, UniverseDim, UnitTraits>;
+template<SomeUnit T>
+using Vector = geom::Vector<T, UniverseDim, UnitTraits>;
 
-using Velocity     = geom::Vector<VelocityVal,     UniverseDim, UnitTraits>;
-using Acceleration = geom::Vector<AccelerationVal, UniverseDim, UnitTraits>;
-using Force        = geom::Vector<ForceVal,        UniverseDim, UnitTraits>;
+using Position = Vector<LengthVal>;
+using Distance = Vector<LengthVal>;
+
+using Velocity     = Vector<VelocityVal>;
+using Acceleration = Vector<AccelerationVal>;
+using Force        = Vector<ForceVal>;
 
 using Time = TimeVal;
 using Mass = MassVal;
+
+template<SomeUnit T, SomeUnit U>
+auto operator*(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] * rhs)>{
+    Vector<decltype(lhs[0] * rhs)> ans{};
+    for(size_t i = 0; i < UniverseDim; ++i) {
+        ans[i] = lhs[i] * rhs;
+    }
+    return ans;
+}
+
+template<SomeUnit T, SomeUnit U>
+auto operator/(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] / rhs)>{
+    Vector<decltype(lhs[0] / rhs)> ans{};
+    for(size_t i = 0; i < UniverseDim; ++i) {
+        ans[i] = lhs[i] / rhs;
+    }
+    return ans;
+}
+
+template<SomeUnit T>
+auto Normalize(const Vector<T>& t) {
+    return t / t.Len();
+}
 
 }
 
@@ -142,5 +175,31 @@ PHYS_UNIT_LITERAL(Time  , sec)
 PHYS_UNIT_LITERAL(Mass  , kg)
 PHYS_UNIT_LITERAL(ForceVal , H)
 #endif
+
+template<class OStream, typename Num, int Meter, int Sec, int KG, int K, int Mole, int Ampere, int Candela>
+OStream& operator<<(OStream& out, const phys::Unit<Num, Meter, Sec, KG, K, Mole, Ampere, Candela>& u) {
+    out << *u << ' ';
+
+#define PRINT_UNIT(Unit, Name)              \
+    do{                                     \
+        if constexpr (Unit != 0) {          \
+            out << Name;                    \
+            if constexpr (Unit != 1) {      \
+                out << "^" << Unit << ' ';  \
+            }                               \
+        }                                   \
+    }while(0)
+
+    PRINT_UNIT(Meter,   "m"  );
+    PRINT_UNIT(Sec,     "s"  );
+    PRINT_UNIT(KG,      "kg" );
+    PRINT_UNIT(K,       "K"  );
+    PRINT_UNIT(Mole,    "mol");
+    PRINT_UNIT(Ampere,  "A"  );
+    PRINT_UNIT(Candela, "cd" );
+#undef PRINT_UNIT
+    return out;
+}
+
 
 #endif /* ENGINE_UNITS_HPP */

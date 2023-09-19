@@ -4,11 +4,18 @@
 #include "materialpoint.hpp"
 namespace phys {
 
+const Time defaultDeltaTime = 1e3_sec;
 
 class Universe {
-    std::vector<MaterialPoint> objects_;
+    std::vector<MaterialPoint*> mps_;
+    Time time;
     public:
-        void simulate();
+        void addMaterialPoint(MaterialPoint* mp) {mps_.push_back(mp);}
+
+        void simulateStep(Time dt = defaultDeltaTime);
+    private:
+
+        void applyGravitation();
 };
 
 }

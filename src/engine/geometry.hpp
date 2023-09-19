@@ -41,12 +41,12 @@ struct Vector {
     }
 
     template <class U>
-    constexpr explicit Vector(const Vector<U, dim>& oth) {
+    constexpr explicit Vector(const Vector<U, dim, traits>& oth) {
         *this = oth;
     }
 
     template <class U>                                          
-    constexpr Vector& operator=(const Vector<U, dim>& oth) { 
+    constexpr Vector& operator=(const Vector<U, dim, traits>& oth) { 
         for (std::size_t i = 0; i < dim; ++i) {                      
             coord_[i] = oth.coord_[i];                        
         }                                                       
@@ -54,7 +54,7 @@ struct Vector {
     }
 
     template <class U>                                          
-    constexpr Vector& operator -=(const Vector<U, dim>& oth) { 
+    constexpr Vector& operator -=(const Vector<U, dim, traits>& oth) { 
         for (std::size_t i = 0; i < dim; ++i) {                      
             coord_[i] -= oth.coord_[i];                        
         }                                                       
@@ -62,7 +62,7 @@ struct Vector {
     }
 
     template <class U>                                          
-    constexpr Vector& operator +=(const Vector<U, dim>& oth) { 
+    constexpr Vector& operator +=(const Vector<U, dim, traits>& oth) { 
         for (std::size_t i = 0; i < dim; ++i) {                      
             coord_[i] += oth.coord_[i];                        
         }                                                       
@@ -136,12 +136,16 @@ struct Vector {
         return !(*this == oth);
     }
 
-    constexpr auto Len2() ->decltype(coord_[0] * coord_[0]) const {
+    using Len2_t = decltype(T{} * T{});
+    using Len_t  = decltype(traits<Len2_t>::sqrt(Len2_t{}));
+
+    constexpr Len2_t Len2() const {
         return (*this, *this);
     }
     
-    constexpr auto Len() -> decltype(traits<decltype(Len2())>::sqrt(Len2())) const {
-        return traits<decltype(Len2())>::sqrt(Len2());
+
+    constexpr Len_t Len() const {
+        return traits<Len2_t>::sqrt(Len2());
     }
 
     constexpr bool operator||(const Vector& oth) const {
@@ -177,41 +181,41 @@ struct Vector {
     }
 };
 
-template <typename T, std::size_t Dim>
-using Point = Vector<T, Dim>;
+template <typename T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+using Point = Vector<T, Dim, traits>;
 
-template <class T, std::size_t Dim>
-constexpr auto operator,(const Vector<T, Dim>& lhs, const Vector<T, Dim>& rhs) {
-    decltype(lhs[0], rhs[0]) ans = 0;
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+constexpr auto operator,(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
+    decltype(lhs[0] * rhs[0]) ans{};
     for (std::size_t i = 0; i < Dim; ++i) {
         ans += lhs[i] * rhs[i];
     }
     return ans;
 }
 
-template <class T, std::size_t Dim>
-Vector<T, Dim> operator+(const Vector<T, Dim>& lhs, const Vector<T, Dim>& rhs) {
-    return Vector<T, Dim>(lhs) += rhs;
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+Vector<T, Dim, traits> operator+(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
+    return Vector<T, Dim, traits>(lhs) += rhs;
 }
 
-template <class T, std::size_t Dim>
-Vector<T, Dim> operator-(const Vector<T, Dim>& lhs, const Vector<T, Dim>& rhs) {
-    return Vector<T, Dim>(lhs) -= rhs;
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+Vector<T, Dim, traits> operator-(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
+    return Vector<T, Dim, traits>(lhs) -= rhs;
 }
 
-template <class T, std::size_t Dim, class U>
-Vector<T, Dim> operator*(const Vector<T, Dim>& lhs, U rhs) {
-    return Vector<T, Dim>(lhs) *= std::move(rhs);
+template <class T, std::size_t Dim, class U, template<typename> typename traits = traits::StdTraits>
+Vector<T, Dim, traits> operator*(const Vector<T, Dim, traits>& lhs, U rhs) {
+    return Vector<T, Dim, traits>(lhs) *= std::move(rhs);
 }
 
-template <class T, std::size_t Dim, class U>
-Vector<T, Dim> operator/(const Vector<T, Dim>& lhs, U rhs) {
-    return Vector<T, Dim>(lhs) /= std::move(rhs);
+template <class T, std::size_t Dim, class U, template<typename> typename traits = traits::StdTraits>
+Vector<T, Dim, traits> operator/(const Vector<T, Dim, traits>& lhs, U rhs) {
+    return Vector<T, Dim, traits>(lhs) /= std::move(rhs);
 }
 
-template <class T, std::size_t Dim>
-Vector<T, Dim> operator-(const Vector<T, Dim>& ths) {
-    return Vector<T, Dim>(ths) *= -1;
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+Vector<T, Dim, traits> operator-(const Vector<T, Dim, traits>& ths) {
+    return Vector<T, Dim, traits>(ths) *= -1;
 }
 
 template <class T>
@@ -229,12 +233,12 @@ constexpr T CrossProd(const Vector2<T>& lhs, const Vector2<T>& rhs) {
     return lhs.X() * rhs.Y() - lhs.Y() * rhs.X();
 }
 
-template <class T, std::size_t Dim>
-const Vector<T, Dim> kZero = {};
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+const Vector<T, Dim, traits> kZero = {};
 
-template <class T, std::size_t Dim, std::size_t I>
-constexpr const Vector<T, Dim> kBasis = [](std::size_t i) {
-    Vector<T, Dim> v{};
+template <class T, std::size_t Dim, std::size_t I, template<typename> typename traits = traits::StdTraits>
+constexpr const Vector<T, Dim, traits> kBasis = [](std::size_t i) {
+    Vector<T, Dim, traits> v{};
     v[i] = 1;
     return v;
 }(I);
@@ -242,9 +246,9 @@ constexpr const Vector<T, Dim> kBasis = [](std::size_t i) {
 /**
  * @brief Class respresenting segment on space
  */
-template <class T, std::size_t Dim>
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
 struct Segment {
-    using Vec = Vector<T, Dim>;
+    using Vec = Vector<T, Dim, traits>;
     Vec p1, p2;
 };
 
@@ -255,8 +259,8 @@ struct Segment {
  * @param i - index of axis to project
  * @return constexpr Vector<T, 1> - projection
  */
-template <class T, std::size_t Dim>
-constexpr Vector<T, 1> Project(const Vector<T, Dim>& vec, std::size_t i) {
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+constexpr Vector<T, 1> Project(const Vector<T, Dim, traits>& vec, std::size_t i) {
     return {vec[i]};
 }
 
@@ -267,7 +271,7 @@ constexpr Vector<T, 1> Project(const Vector<T, Dim>& vec, std::size_t i) {
  * @param i - index of axis to project
  * @return constexpr Segment<T, 1> - projection
  */
-template <class T, std::size_t Dim>
+template <class T, std::size_t Dim,  template<typename> typename traits = traits::StdTraits>
 constexpr Segment<T, 1> Project(const Segment<T, Dim>& seg, std::size_t i) {
     return {Project(seg.p1, i), Project(seg.p2, i)};
 }
@@ -292,8 +296,8 @@ auto Dist(T x, U y);
 template <class T, class U>
 bool Cross(T x, U y);
 
-template <class T, std::size_t Dim>
-auto Dist(const Vector<T, Dim>& lhs, const Vector<T, Dim>& rhs) -> decltype(Vector<T, Dim>{}.Len()) {
+template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+auto Dist(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) -> decltype(Vector<T, Dim, traits>{}.Len()) {
     return (lhs - rhs).Len();
 }
 
@@ -341,23 +345,23 @@ bool Cross(const Segment<T, 2>& lhs, const Segment<T, 2>& rhs) {
            CrossProd(rhs.p2 - rhs.p1, lhs.p1 - rhs.p1) * CrossProd(rhs.p2 - rhs.p1, lhs.p2 - rhs.p1) <= 0;
 }
 
-template <class T, std::size_t Dim>
-std::ostream& operator<<(std::ostream& out, const Vector<T, Dim>& vec) {
+template <class T, std::size_t Dim,  template<typename> typename traits = traits::StdTraits>
+std::ostream& operator<<(std::ostream& out, const Vector<T, Dim, traits>& vec) {
     for (std::size_t i = 0; i < Dim; ++i) {
         out << vec[i] << ' ';
     }
     return out;
 }
 
-template <class T, std::size_t Dim>
-std::istream& operator>>(std::istream& in, Vector<T, Dim>& vec) {
+template <class T, std::size_t Dim,  template<typename> typename traits = traits::StdTraits>
+std::istream& operator>>(std::istream& in, Vector<T, Dim, traits>& vec) {
     for (std::size_t i = 0; i < Dim; ++i) {
         in >> vec[i];
     }
     return in;
 }
 
-template <class T, std::size_t Dim>
+template <class T, std::size_t Dim,  template<typename> typename traits = traits::StdTraits>
 std::istream& operator>>(std::istream& in, Segment<T, Dim>& seg) {
     return in >> seg.p1 >> seg.p2;
 }
