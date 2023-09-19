@@ -16,6 +16,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     -Wno-covered-switch-default  # We cover uncoverable
     -Wno-c99-extensions
     -Wno-disabled-macro-expansion
+    -Wno-c++20-compat
     -Werror=return-type
     )
     
