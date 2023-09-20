@@ -4,8 +4,6 @@
 #include "materialpoint.hpp"
 #include <QWidget>
 
-const long double Scale = 3e6l;
-
 class Celestial : public QWidget
 {
     Q_OBJECT
@@ -25,14 +23,23 @@ private:
     phys::MaterialPoint m_object = {{}, {}, 1_kg};
     phys::Length m_radius = 1_m;
 
+    int m_display_size;
+
+    phys::num_t m_scale;
 
     void paintEvent(QPaintEvent* event) override;
+
 public slots:
     void updatePosition();
 
-    static int scaled(long double x) {
-        return static_cast<int>(x / Scale);
+    void rescale(phys::num_t newScale);
+
+    int scaled(long double x) {
+        return static_cast<int>(x / m_scale);
     }
+
+private slots:
+    void edit();
 signals:
 
 };

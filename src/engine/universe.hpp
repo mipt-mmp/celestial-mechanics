@@ -13,9 +13,13 @@ class Universe {
         void addMaterialPoint(MaterialPoint* mp) {mps_.push_back(mp);}
 
         void simulateStep(Time dt = defaultDeltaTime);
+        
+        Energy getEnergy() const;
     private:
+        Energy getPotentialGravitationEnergy() const;
 
         void applyGravitation();
+
 };
 
 }

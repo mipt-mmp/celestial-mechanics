@@ -1,21 +1,30 @@
 #include "mainwindow.hpp"
 #include "ui_mainwindow.h"
-#include "universedisplayer.hpp"
+
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    m_ud = new UniverseDisplayer(this);
+    m_ud->setGeometry(rect());
+
     ui->setupUi(this);
-    auto* ud = new UniverseDisplayer(this);
-    ud->setGeometry(0, 0, 500, 500);
-    bool success = connect(ui->pushButton, SIGNAL(pressed()), ud, SLOT(redraw()));
-    Q_ASSERT(success);
+
+    connect(m_ud, SIGNAL(displayEnergy(double)), ui->doubleSpinBox, SLOT(setValue(double)));
+    m_ud->assignSpinBox(ui->spinBox);
+    m_ud->assignStopButton(ui->pushButton);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    m_ud->setGeometry(rect());
 }
 

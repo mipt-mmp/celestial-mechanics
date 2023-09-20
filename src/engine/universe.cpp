@@ -25,4 +25,26 @@ void Universe::applyGravitation() {
     }
 }
 
+Energy Universe::getEnergy() const {
+    Energy e{};
+    for(const auto* mp: mps_) {
+        e += mp->getKinetic();
+    }
+    e += getPotentialGravitationEnergy();
+    return e;
+}
+
+Energy Universe::getPotentialGravitationEnergy() const {
+    Energy e;
+    for(size_t i = 0; i < mps_.size(); ++i) {
+        for(size_t j = i+1; j < mps_.size(); ++j) {
+            auto dist = (mps_[i]->getPos() - mps_[j]->getPos()).Len();
+            e += -phys::consts::G * mps_[i]->getMass() * mps_[j]->getMass() / dist;
+        }
+    }
+    return e;
+}
+
+
+
 }

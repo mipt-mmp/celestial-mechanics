@@ -54,6 +54,11 @@ public:
 
     void applyForce(Force f);
 
+    Energy getKinetic() const { 
+        Energy e = v_.Len2() * m_ / 2.l; 
+        return e;
+    }
+
 private:
     void reset(); 
 };

@@ -54,7 +54,7 @@ public:
         return Unit{*this} -= rhs;
     }
 
-    constexpr Unit operator-() {
+    constexpr Unit operator-() const {
         return Unit{-num_};
     }
 
@@ -63,9 +63,13 @@ public:
         return *this;
     }
 
-    constexpr Unit& operator-=(const Num& num) {
-        num_ -= num;
+    constexpr Unit& operator/=(const Num& num) {
+        num_ /= num;
         return *this;
+    }
+
+    constexpr Unit operator/(const Num& num) {
+        return Unit{*this} /= num;
     }
 
     constexpr auto operator<=>(const Unit& rhs) const -> decltype(num_ <=> rhs.num_) {
@@ -125,6 +129,8 @@ using TimeVal         = Unit<num_t, 0, 1, 0>;   // s
 
 using MassVal         = Unit<num_t, 0, 0, 1>;   // kg
 
+using EnergyVal        = Unit<num_t, 2, -2, 1>;   // kg * m ^ 2 * s^-2
+
 using Length = LengthVal;
 
 template<SomeUnit T>
@@ -139,6 +145,7 @@ using Force        = Vector<ForceVal>;
 
 using Time = TimeVal;
 using Mass = MassVal;
+using Energy = EnergyVal;
 
 template<SomeUnit T, SomeUnit U>
 auto operator*(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] * rhs)>{
@@ -149,7 +156,7 @@ auto operator*(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] * r
     return ans;
 }
 
-template<SomeUnit T, SomeUnit U>
+template<SomeUnit T, typename U>
 auto operator/(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] / rhs)>{
     Vector<decltype(lhs[0] / rhs)> ans{};
     for(size_t i = 0; i < UniverseDim; ++i) {
