@@ -9,13 +9,6 @@
 #include <vector>
 
 namespace geom {
-    
-/**
- * @brief Vector class. 
- * 
- * @tparam T - element of vector.
- * @tparam dim - dimension of vector. 
- */
 
 namespace traits {
 
@@ -29,14 +22,15 @@ namespace traits {
 
 template <typename T, std::size_t dim, template<typename> class traits = traits::StdTraits>
 struct Vector {
-    std::array<T, dim> coord_{};
+    std::array<T, dim> m_coord{};
 
     constexpr Vector() = default;
-    constexpr Vector(const Vector&) = default;
+    constexpr Vector(const Vector&)            = default;
     constexpr Vector& operator=(const Vector&) = default;
+
     constexpr Vector(std::initializer_list<T> l) {
-        for (std::size_t i = 0; i < dim; ++i) {
-            coord_[i] = *(l.begin() + i);
+        for (std::size_t i = 0; i < std::min(dim, l.size()); ++i) {
+            m_coord[i] = *(l.begin() + i);
         }
     }
 
@@ -47,34 +41,32 @@ struct Vector {
 
     template <class U>                                          
     constexpr Vector& operator=(const Vector<U, dim, traits>& oth) { 
-        for (std::size_t i = 0; i < dim; ++i) {                      
-            coord_[i] = oth.coord_[i];                        
+        for (std::size_t i = 0; i < dim; ++i) {
+            m_coord[i] = oth.m_coord[i];
         }                                                       
         return *this;                                           
     }
 
     template <class U>                                          
-    constexpr Vector& operator -=(const Vector<U, dim, traits>& oth) { 
-        for (std::size_t i = 0; i < dim; ++i) {                      
-            coord_[i] -= oth.coord_[i];                        
+    constexpr Vector& operator-= (const Vector<U, dim, traits>& oth) {
+        for (std::size_t i = 0; i < dim; ++i) {
+                m_coord[i] -= oth.m_coord[i];
         }                                                       
         return *this;                                           
     }
 
     template <class U>                                          
-    constexpr Vector& operator +=(const Vector<U, dim, traits>& oth) { 
-        for (std::size_t i = 0; i < dim; ++i) {                      
-            coord_[i] += oth.coord_[i];                        
+    constexpr Vector& operator+= (const Vector<U, dim, traits>& oth) {
+        for (std::size_t i = 0; i < dim; ++i) {
+            m_coord[i] += oth.m_coord[i];
         }                                                       
         return *this;                                           
     }
-
-
 
     template <class U>
-    constexpr Vector& operator*=(U c) {
+    constexpr Vector& operator*= (U c) {
         for (std::size_t i = 0; i < dim; ++i) {
-            coord_[i] *= c;
+            m_coord[i] *= c;
         }
         return *this;
     }
@@ -82,50 +74,24 @@ struct Vector {
     template <class U>
     constexpr Vector& operator/=(U c) {
         for (std::size_t i = 0; i < dim; ++i) {
-            coord_[i] /= c;
+            m_coord[i] /= c;
         }
         return *this;
     }
 
     constexpr const T& operator[](std::size_t i) const {
         assert(i < dim);
-        return coord_[i];
+        return m_coord[i];
     }
 
     constexpr T& operator[](std::size_t i) {
         assert(i < dim);
-        return coord_[i];
-    }
-
-    constexpr bool operator<(const Vector& oth) const {
-        for (std::size_t i = 0; i < dim; ++i) {
-            if (coord_[i] != oth.coord_[i]) {
-                return coord_[i] < oth.coord_[i];
-            }
-        }
-        return false;
-    }
-
-    constexpr bool operator>(const Vector& oth) const {
-        for (std::size_t i = 0; i < dim; ++i) {
-            if (coord_[i] != oth.coord_[i]) {
-                return coord_[i] > oth.coord_[i];
-            }
-        }
-        return false;
-    }
-
-    constexpr bool operator<=(const Vector& oth) const {
-        return !(*this > oth);
-    }
-
-    constexpr bool operator>=(const Vector& oth) const {
-        return !(*this < oth);
+        return m_coord[i];
     }
 
     constexpr bool operator==(const Vector& oth) const {
         for (std::size_t i = 0; i < dim; ++i) {
-            if (coord_[i] != oth.coord_[i]) {
+            if (m_coord[i] != oth.m_coord[i]) {
                 return false;
             }
         }
@@ -137,47 +103,50 @@ struct Vector {
     }
 
     using Len2_t = decltype(T{} * T{});
-    using Len_t  = decltype(traits<Len2_t>::sqrt(Len2_t{}));
 
     constexpr Len2_t Len2() const {
         return (*this, *this);
     }
     
+    using Len_t = decltype(traits<Len2_t>::sqrt(Len2_t{}));
 
     constexpr Len_t Len() const {
         return traits<Len2_t>::sqrt(Len2());
     }
 
     constexpr bool operator||(const Vector& oth) const {
-        T scalar = (*this, oth);
+        auto scalar = (*this, oth);
         return scalar * scalar == Len2() * oth.Len2();
     }
 
     constexpr T& X() {
         static_assert(dim >= 1);
-        return coord_[0];
+        return m_coord[0];
     }
+
     constexpr const T& X() const {
         static_assert(dim >= 1);
-        return coord_[0];
+        return m_coord[0];
     }
 
     constexpr T& Y() {
         static_assert(dim >= 2);
-        return coord_[1];
+        return m_coord[1];
     }
+
     constexpr const T& Y() const {
         static_assert(dim >= 2);
-        return coord_[1];
+        return m_coord[1];
     }
 
     constexpr T& Z() {
         static_assert(dim >= 3);
-        return coord_[2];
+        return m_coord[2];
     }
+
     constexpr const T& Z() const {
         static_assert(dim >= 3);
-        return coord_[2];
+        return m_coord[2];
     }
 };
 
@@ -194,28 +163,40 @@ constexpr auto operator,(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim,
 }
 
 template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
-Vector<T, Dim, traits> operator+(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
+Vector<T, Dim, traits> operator+ (const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
     return Vector<T, Dim, traits>(lhs) += rhs;
 }
 
 template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
-Vector<T, Dim, traits> operator-(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
+Vector<T, Dim, traits> operator- (const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
     return Vector<T, Dim, traits>(lhs) -= rhs;
 }
 
 template <class T, std::size_t Dim, class U, template<typename> typename traits = traits::StdTraits>
-Vector<T, Dim, traits> operator*(const Vector<T, Dim, traits>& lhs, U rhs) {
-    return Vector<T, Dim, traits>(lhs) *= std::move(rhs);
+Vector<decltype(T{} * U{}), Dim, traits> operator* (const Vector<T, Dim, traits>& lhs, const U& rhs) {
+    Vector<decltype(T{} * U{}), Dim, traits> v;
+    for(size_t i = 0; i < Dim; ++i) {
+        v[i] = lhs[i] * rhs;
+    }
+    return v;
 }
 
 template <class T, std::size_t Dim, class U, template<typename> typename traits = traits::StdTraits>
-Vector<T, Dim, traits> operator/(const Vector<T, Dim, traits>& lhs, U rhs) {
-    return Vector<T, Dim, traits>(lhs) /= std::move(rhs);
+Vector<decltype(T{} * U{}), Dim, traits> operator/ (const Vector<T, Dim, traits>& lhs, const U& rhs) {
+    Vector<decltype(T{} * U{}), Dim, traits> v;
+    for(size_t i = 0; i < Dim; ++i) {
+        v[i] = lhs[i] / rhs;
+    }
+    return v;
 }
 
 template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
 Vector<T, Dim, traits> operator-(const Vector<T, Dim, traits>& ths) {
-    return Vector<T, Dim, traits>(ths) *= -1;
+    Vector<T, Dim, traits> v = ths;
+    for(size_t i = 0; i < Dim; ++i) {
+        v[i] = -v[i];
+    }
+    return v;
 }
 
 template <class T>

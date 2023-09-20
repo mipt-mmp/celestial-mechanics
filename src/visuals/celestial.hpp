@@ -34,7 +34,7 @@ public slots:
 
     void rescale(phys::num_t newScale);
 
-    int scaled(long double x) {
+    int scaled(phys::num_t x) {
         return static_cast<int>(x / m_scale);
     }
 

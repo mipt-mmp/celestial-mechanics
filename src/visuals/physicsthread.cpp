@@ -17,13 +17,13 @@ void PhysicsThread::run()
             if(m_stopped) {
                 break;
             }
-            m_universe.simulateStep();
+            m_universe.simulateStep(1000_sec);
         }
         msleep(m_period);
     }
 }
 
-bool PhysicsThread::getStopped()
+[[nodiscard]] bool PhysicsThread::getStopped()
 {
     QMutexLocker lock(&m_mutex);
     return m_stopped;

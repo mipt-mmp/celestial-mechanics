@@ -1,15 +1,12 @@
 #ifndef ENGINE_UNITS_HPP
 #define ENGINE_UNITS_HPP
 #include "geometry.hpp"
+#include "real.hpp"
 #include <compare>
 #include <concepts>
 #include <cstdint>
 
 #define PHYS_UNITS_PROVIDE_LITERALS //FIXME: Compile option
-
-#ifndef PHYS_UNITS_DEFAULT_TYPE
-#define PHYS_UNITS_DEFAULT_TYPE long double
-#endif
 
 namespace phys {
 
@@ -115,7 +112,7 @@ struct UnitTraits {
     }
 };
 
-using num_t = PHYS_UNITS_DEFAULT_TYPE;
+using num_t = unreal_t;
 
 using LengthVal       = Unit<num_t, 1>;         // m
 
@@ -129,7 +126,7 @@ using TimeVal         = Unit<num_t, 0, 1, 0>;   // s
 
 using MassVal         = Unit<num_t, 0, 0, 1>;   // kg
 
-using EnergyVal        = Unit<num_t, 2, -2, 1>;   // kg * m ^ 2 * s^-2
+using EnergyVal       = Unit<num_t, 2, -2, 1>;   // kg * m ^ 2 * s^-2
 
 using Length = LengthVal;
 
@@ -173,7 +170,7 @@ auto Normalize(const Vector<T>& t) {
 
 }
 
-#if defined(PHYS_UNITS_PROVIDE_LITERALS) && defined (PHYS_UNITS_DEFAULT_TYPE)
+#if defined(PHYS_UNITS_PROVIDE_LITERALS)
 #define PHYS_UNIT_LITERAL(U, Literal)\
 constexpr phys::U operator""_##Literal(long double x) {return phys::U{x};} \
 constexpr phys::U operator""_##Literal(unsigned long long x) {return phys::U{x};}

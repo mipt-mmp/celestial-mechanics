@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CelstialStateDialog</class>
+ <class>CelestialStateDialog</class>
  <widget class="QDialog" name="CelestialStateDialog">
   <property name="geometry">
    <rect>
@@ -67,7 +67,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>CelstialStateDialog</receiver>
+   <receiver>CelestialStateDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -83,7 +83,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>CelstialStateDialog</receiver>
+   <receiver>CelestialStateDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
