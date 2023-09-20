@@ -2,11 +2,13 @@
 #include <QMutexLocker>
 PhysicsThread::PhysicsThread(phys::Universe& universe, QObject* parent) : QThread(parent), m_universe(universe)
 {
+    start(LowPriority);
 }
 
 PhysicsThread::~PhysicsThread()
 {
     stop();
+    exit(0);
 }
 
 void PhysicsThread::run()
@@ -14,12 +16,21 @@ void PhysicsThread::run()
     forever {
         {
             QMutexLocker lock(&m_mutex);
+
             if(m_stopped) {
-                break;
+                m_allow_run.wait(&m_mutex);
             }
+
             m_universe.simulateStep(1000_sec);
         }
-        msleep(m_period);
+        
+        if(m_period != -1) {
+            long time = static_cast<long>(std::pow(1.2, m_period));
+            time = std::min(time, 5'000'000l);
+            if(time < 0)
+                time = 5'000'000l;
+            usleep(time);
+        }
     }
 }
 
@@ -29,7 +40,7 @@ void PhysicsThread::run()
     return m_stopped;
 }
 
-unsigned long PhysicsThread::getPeriod() const
+int PhysicsThread::getPeriod() const
 {
     return m_period;
 }

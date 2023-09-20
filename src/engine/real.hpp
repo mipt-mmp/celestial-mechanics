@@ -10,6 +10,15 @@ template <typename T>
 concept arithmetic = is_arithmetic<T>::value;
 }
 
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wfloat-equal"
+#elif defined(__GNUG__)
+#pragma GCC diagnostics push
+#pragma GCC diagnostics ignored "-Wfloat-equal"
+#else
+#endif
+
 class unreal_t {
 
 private:
@@ -17,7 +26,7 @@ private:
   num_t m_x = 0.;
   num_t m_y = 0.;
 
-  static const constexpr num_t Epsilon = 1. / (1<<10);
+  static const constexpr num_t Epsilon = 1. / (1l<<40);
 
 public:
 
@@ -31,7 +40,7 @@ public:
   }
 
   constexpr std::partial_ordering operator<=>(const unreal_t& oth) const {
-    if (definitelyLessrThan(*this, oth)) {
+      if (definitelyLesserThan(*this, oth)) {
       return std::partial_ordering::less;
     }
 
@@ -71,6 +80,10 @@ public:
 
   static constexpr bool
   definitelyGreaterThan(unreal_t lhs, unreal_t rhs) {
+    if(lhs.m_x == std::numeric_limits<num_t>::infinity() || rhs.m_x == -std::numeric_limits<num_t>::infinity()) {
+      return true;
+    }
+
     return (lhs.m_x - rhs.m_x) >
            ((std::abs(lhs.m_x) < std::abs(rhs.m_x) ? std::abs(rhs.m_x)
                                                    : std::abs(lhs.m_x)) *
@@ -78,7 +91,10 @@ public:
   }
 
   static constexpr bool
-  definitelyLessrThan(unreal_t lhs, unreal_t rhs) {
+  definitelyLesserThan(unreal_t lhs, unreal_t rhs) {
+    if(lhs.m_x == -std::numeric_limits<num_t>::infinity() || rhs.m_x == std::numeric_limits<num_t>::infinity()) {
+      return true;
+    }
     return (rhs.m_x - lhs.m_x) >
            ((std::abs(lhs.m_x) < std::abs(rhs.m_x) ? std::abs(rhs.m_x)
                                                    : std::abs(lhs.m_x)) *
@@ -149,4 +165,12 @@ template<typename IStream>
 IStream& operator>>(IStream& in, unreal_t x) {
   return in >> x.getVal();
 }
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUG__)
+#pragma GCC diagnostics pop
+#else
+#endif
+
 #endif // REAL_HPP

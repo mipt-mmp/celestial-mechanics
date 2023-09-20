@@ -7,19 +7,22 @@ namespace phys {
 const Time defaultDeltaTime = 1e4_sec;
 
 class Universe {
-    std::vector<MaterialPoint*> mps_;
-    Time time;
-    public:
-        void addMaterialPoint(MaterialPoint* mp) {mps_.push_back(mp);}
+  std::vector<MaterialPoint *> m_mps;
+  Time m_time;
 
-        void simulateStep(Time dt = defaultDeltaTime);
-        
-        Energy getEnergy() const;
-    private:
-        Energy getPotentialGravitationEnergy() const;
+  mutable Energy m_startEnergy{NAN};
 
-        void applyGravitation();
+public:
+  void addMaterialPoint(MaterialPoint *mp) { m_mps.push_back(mp); }
 
+  void simulateStep(Time dt = defaultDeltaTime);
+
+  Energy getEnergy() const;
+
+private:
+  Energy getPotentialGravitationEnergy() const;
+
+  void applyGravitation();
 };
 
 }

@@ -8,14 +8,16 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
 {
     m_earth = new Celestial(5.9e24_kg, 6.3e6_m, this);
-    m_earth->setColor(Qt::green);
     m_earth->setVelocity({0_m / 1_sec, 0_m / 1_sec});
+
+    m_earth->setColor(Qt::green);
     m_universe.addMaterialPoint(m_earth->getObject());
 
-    m_moon = new Celestial(7.36e2_kg, 1.7e6_m, this);
-    m_moon->setColor(Qt::blue);
+    m_moon = new Celestial(7.36e20_kg, 1.7e6_m, this);
     m_moon->setVelocity({0_m / 1_sec, 1.2e3_m / 1_sec});
-    m_moon->setPosition({4e8_m});
+    m_moon->setPosition({4e8_m, 0_m});
+
+    m_moon->setColor(Qt::blue);
     m_universe.addMaterialPoint(m_moon->getObject());
 
     const phys::num_t Scale = 2e6l;
@@ -32,8 +34,6 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     m_timer->setSingleShot(false);
     connect(m_timer,SIGNAL(timeout()),this, SLOT(redraw()));
     m_timer->start();
-
-    m_physThread.cont();
 }
 
 void UniverseDisplayer::assignSpinBox(QSpinBox *box)
@@ -53,7 +53,7 @@ void UniverseDisplayer::assignStopButton(QPushButton *button)
 
 void UniverseDisplayer::setButtonState(bool running)
 {
-    m_stoper->setText(running ? "Stop" : "False");
+    m_stoper->setText(running ? "Stop" : "Run");
 }
 
 void UniverseDisplayer::redraw()
@@ -65,7 +65,7 @@ void UniverseDisplayer::redraw()
 
     m_earth->updatePosition();
     m_moon-> updatePosition();
-    emit displayEnergy(static_cast<double>(*m_universe.getEnergy()));
+    emit displayEnergy(m_universe.getEnergy()->getVal() / 1e20);
 
     if(!stopped) {
         m_physThread.cont();

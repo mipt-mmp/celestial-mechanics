@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QMutex>
+#include <QWaitCondition>
 
 #include "universe.hpp"
 
@@ -18,7 +19,6 @@ public slots:
         m_mutex.lock();
         m_stopped = true;
         m_mutex.unlock();
-        wait();
         emit toggled(false);
     }
 
@@ -26,7 +26,7 @@ public slots:
         m_mutex.lock();
         if(m_stopped) {
             m_stopped = false;
-            start(LowPriority);
+            m_allow_run.wakeAll();
             emit toggled(true);
         }
         m_mutex.unlock();
@@ -37,18 +37,17 @@ public slots:
         m_stopped ^= 1;
         if(m_stopped) {
             m_mutex.unlock();
-            wait();
             emit toggled(false);
             return;
-        } else {
-            start(LowPriority);
-            emit toggled(true);
         }
+
+        m_allow_run.wakeAll();
+        emit toggled(true);
         m_mutex.unlock();
     }
 
 public:
-    [[nodiscard]] unsigned long getPeriod() const;
+    [[nodiscard]] int getPeriod() const;
     [[nodiscard]] bool getStopped();
 
 signals:
@@ -63,8 +62,9 @@ protected:
 private:
     phys::Universe& m_universe;
     QMutex m_mutex;
+    QWaitCondition m_allow_run;
     bool m_stopped = true;
-    unsigned long m_period = 5;
+    int m_period = 32;
 };
 
 #endif // PHYSICSTHREAD_HPP
