@@ -19,7 +19,9 @@ public:
 
   Energy getEnergy() const;
 
-private:
+  [[nodiscard]] Time getTime() const;
+
+  private:
   Energy getPotentialGravitationEnergy() const;
 
   void applyGravitation();

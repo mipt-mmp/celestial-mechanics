@@ -3,12 +3,19 @@
 
 namespace phys {
 
+Time Universe::getTime() const
+{
+    return m_time;
+}
+
 void Universe::simulateStep(Time dt) {
     applyGravitation();
     
     for(auto* mp: m_mps) {
         mp->move(dt);
     }
+
+    m_time += dt;
 }
 
 void Universe::applyGravitation() {

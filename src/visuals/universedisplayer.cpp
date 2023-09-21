@@ -3,26 +3,31 @@
 #include <QTimer>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QDateTimeEdit>>
 
 UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
 {
-    m_earth = new Celestial(5.9e24_kg, 6.3e6_m, this);
-    m_earth->setVelocity({0_m / 1_sec, 0_m / 1_sec});
 
-    m_earth->setColor(Qt::green);
-    m_universe.addMaterialPoint(m_earth->getObject());
+    createCelestial(7.36e24_kg, 6.3e6_m,
+                    {0_m, 0_m},                    // pos
+                    {0_m / 1_sec, 0_m / 1_sec}, // v
+                    Qt::green
+                    );
 
-    m_moon = new Celestial(7.36e20_kg, 1.7e6_m, this);
-    m_moon->setVelocity({0_m / 1_sec, 1.2e3_m / 1_sec});
-    m_moon->setPosition({4e8_m, 0_m});
+    createCelestial(5.36e24_kg, 6.7e6_m,
+                    {4e8_m, 0_m},                  // pos
+                    {0_m / 1_sec, 8e2_m / 1_sec}, // v
+                    Qt::blue
+                    );
 
-    m_moon->setColor(Qt::blue);
-    m_universe.addMaterialPoint(m_moon->getObject());
+    createCelestial(5.36e24_kg, 6.7e6_m,
+                    {-4e8_m, 0_m},                  // pos
+                    {0_m / 1_sec, -8.001e2_m / 1_sec}, // v
+                    Qt::red
+                    );
 
-    const phys::num_t Scale = 2e6l;
-    m_moon->rescale(Scale);
-    m_earth->rescale(Scale);
+
 
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, Qt::black);
@@ -34,6 +39,11 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     m_timer->setSingleShot(false);
     connect(m_timer,SIGNAL(timeout()),this, SLOT(redraw()));
     m_timer->start();
+}
+
+UniverseDisplayer::~UniverseDisplayer()
+{
+    m_physThread.terminate();
 }
 
 void UniverseDisplayer::assignSpinBox(QSpinBox *box)
@@ -51,6 +61,23 @@ void UniverseDisplayer::assignStopButton(QPushButton *button)
     connect(&m_physThread, SIGNAL(toggled(bool)), this, SLOT(setButtonState(bool)));
 }
 
+void UniverseDisplayer::assignUniverseTimer(QDateTimeEdit* timer)
+{
+    m_watch = timer;
+}
+
+void UniverseDisplayer::createCelestial(phys::Mass mass, phys::Length radius, phys::Position pos, phys::Velocity v, QColor color)
+{
+    const phys::num_t Scale = 2e6l;
+    Celestial* cel = new Celestial(mass, radius, this);
+    cel->setPosition(pos);
+    cel->setVelocity(v);
+    cel->setColor(color);
+    cel->rescale(Scale);
+    m_celestials.push_back(cel);
+    m_universe.addMaterialPoint(cel->getObject());
+}
+
 void UniverseDisplayer::setButtonState(bool running)
 {
     m_stoper->setText(running ? "Stop" : "Run");
@@ -63,9 +90,15 @@ void UniverseDisplayer::redraw()
         m_physThread.stop();
     }
 
-    m_earth->updatePosition();
-    m_moon-> updatePosition();
+    for(auto* celestial : m_celestials) {
+        celestial->updatePosition();
+    }
+
     emit displayEnergy(m_universe.getEnergy()->getVal() / 1e20);
+
+    if(m_watch) {
+        m_watch->setDateTime(QDateTime::fromSecsSinceEpoch(static_cast<uint64_t>(m_universe.getTime()->getVal())));
+    }
 
     if(!stopped) {
         m_physThread.cont();

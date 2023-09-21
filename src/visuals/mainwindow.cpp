@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_ud, SIGNAL(displayEnergy(double)), ui->doubleSpinBox, SLOT(setValue(double)));
     m_ud->assignSpinBox(ui->spinBox);
     m_ud->assignStopButton(ui->pushButton);
+    m_ud->assignUniverseTimer(ui->time);
 }
 
 MainWindow::~MainWindow()

@@ -21,7 +21,7 @@ void PhysicsThread::run()
                 m_allow_run.wait(&m_mutex);
             }
 
-            m_universe.simulateStep(1000_sec);
+            m_universe.simulateStep(30_sec);
         }
         
         if(m_period != -1) {
