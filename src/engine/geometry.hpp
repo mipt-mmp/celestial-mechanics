@@ -153,14 +153,14 @@ struct Vector {
 template <typename T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
 using Point = Vector<T, Dim, traits>;
 
-template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
-constexpr auto operator,(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
-    decltype(lhs[0] * rhs[0]) ans{};
-    for (std::size_t i = 0; i < Dim; ++i) {
-        ans += lhs[i] * rhs[i];
-    }
-    return ans;
-}
+// template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+// constexpr auto operator,(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
+//     decltype(lhs[0] * rhs[0]) ans{};
+//     for (std::size_t i = 0; i < Dim; ++i) {
+//         ans += lhs[i] * rhs[i];
+//     }
+//     return ans;
+// }
 
 template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
 Vector<T, Dim, traits> operator+ (const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {

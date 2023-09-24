@@ -54,6 +54,12 @@ public:
 
     void applyForce(Force f);
 
+    ImpulseMomentVal getImpulseMoment() const {
+        auto impulse = v_ * m_;
+
+        return impulse.Len() * pos_.Len() * GetSinusBetween(impulse, pos_);
+    }
+
     Energy getKinetic() const { 
         Energy e = v_.Len2() * m_ / 2.l; 
         return e;
