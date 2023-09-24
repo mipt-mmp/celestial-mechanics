@@ -8,7 +8,6 @@
 UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
 {
-
     createCelestial(5.97e24_kg, 6.3e6_m,
                     {0_m, 0_m},                    // pos
                     {0_m / 1_sec, 0_m / 1_sec}, // v
@@ -29,6 +28,7 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
 
     m_universe.shiftPoints();
     m_universe.shiftVelocities();
+    m_universe.recalcOptimalDt();
 
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, Qt::black);
@@ -96,6 +96,7 @@ void UniverseDisplayer::redraw()
     }
 
     emit displayEnergy(m_universe.getEnergy()->getVal() / 1e20);
+    // std::cout << m_universe.getImpulseMoment() << std::endl; // TODO connect to window
 
     if(m_watch) {
         m_watch->setDateTime(QDateTime::fromSecsSinceEpoch(static_cast<uint64_t>(m_universe.getTime()->getVal())));

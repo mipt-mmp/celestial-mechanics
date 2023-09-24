@@ -10,7 +10,7 @@
 
 namespace phys {
 
-const std::size_t UniverseDim = 3;
+const std::size_t UniverseDim = 2;
 
 namespace detail {
     class UnitBase{}; // Needed for fast abstraction
@@ -114,23 +114,25 @@ struct UnitTraits {
 
 using num_t = unreal_t;
 
-using LengthVal       = Unit<num_t, 1>;         // m
+using LengthVal        = Unit<num_t, 1>;         // m
 
-using VelocityVal     = Unit<num_t, 1, -1>;     // m * s^-1
+using VelocityVal      = Unit<num_t, 1, -1>;     // m * s^-1
 
-using AccelerationVal = Unit<num_t, 1, -2>;     // m * s^-2
+using AccelerationVal  = Unit<num_t, 1, -2>;     // m * s^-2
 
-using ForceVal        = Unit<num_t, 1, -2, 1>;  // kg * m * s^-2
+using ForceVal         = Unit<num_t, 1, -2, 1>;  // kg * m * s^-2
 
-using TimeVal         = Unit<num_t, 0, 1, 0>;   // s
+using TimeVal          = Unit<num_t, 0, 1, 0>;   // s
 
-using MassVal         = Unit<num_t, 0, 0, 1>;   // kg
+using MassVal          = Unit<num_t, 0, 0, 1>;   // kg
 
-using EnergyVal       = Unit<num_t, 2, -2, 1>;  // kg * m ^ 2 * s^-2
+using EnergyVal        = Unit<num_t, 2, -2, 1>;  // kg * m ^ 2 * s^-2
 
-using MassMomentVal   = Unit<num_t, 1, 0, 1>;   // kg * m
+using MassMomentVal    = Unit<num_t, 1, 0, 1>;   // kg * m
 
-using ImpulseVal      = Unit<num_t, 1, -1, 1>;  // kg * m * s^-1
+using ImpulseVal       = Unit<num_t, 1, -1, 1>;  // kg * m * s^-1
+
+using ImpulseMomentVal = Unit<num_t, 2, -1, 1>;  // kg * m^2 * s^-1
 
 using Length = LengthVal;
 
@@ -168,10 +170,28 @@ auto operator/(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] / r
     return ans;
 }
 
+template<SomeUnit T, SomeUnit U>
+auto operator,(const Vector<T>& lhs, const Vector<U>& rhs) -> decltype(lhs[0] * rhs[0]) {
+    decltype(lhs[0] * rhs[0]) ans{};
+    for(size_t i = 0; i < UniverseDim; ++i) {
+        ans += lhs[i] * rhs[i];
+    }
+    return ans;
+}
+
 template<SomeUnit T>
 auto Normalize(const Vector<T>& t) {
     assert(*t.Len() > 0.);
     return t / t.Len();
+}
+
+template<SomeUnit T, SomeUnit U>
+Unit<num_t> GetSinusBetween(const Vector<T>& lhs, const Vector<U>& rhs) {
+    auto lens_product = lhs.Len() * rhs.Len();
+    auto cos_alpha = (lhs, rhs) / lens_product;
+    auto sin_alpha = Unit<num_t>{1} - cos_alpha * cos_alpha;
+
+    return sin_alpha;
 }
 
 }

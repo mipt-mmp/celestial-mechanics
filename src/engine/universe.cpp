@@ -21,8 +21,8 @@ Distance Universe::getMassCenter() {
 }
 
 Velocity Universe::getVelocityCenter() {
-    Impulse sum_impulse;
-    Mass mass_sum;
+    Impulse sum_impulse{};
+    Mass mass_sum{};
 
     for (auto* mp : m_mps) {
         sum_impulse += mp->getVelocity() * mp->getMass();
@@ -30,6 +30,21 @@ Velocity Universe::getVelocityCenter() {
     }
 
     return sum_impulse / mass_sum;
+}
+
+void Universe::recalcOptimalDt() {
+    VelocityVal max_speed{};
+
+    for (auto* mp : m_mps) {
+        max_speed = std::max(mp->getVelocity().Len(), max_speed);
+    }
+
+    const LengthVal normalizer = 2.5e4_m;
+    m_dt = normalizer / max_speed;
+}
+
+Time Universe::getOptimalDt() {
+    return m_dt;
 }
 
 void Universe::shiftPoints() {
@@ -51,7 +66,7 @@ void Universe::shiftVelocities() {
 void Universe::simulateStep(Time dt) {
     applyGravitation();
     
-    for(auto* mp: m_mps) {
+    for (auto* mp: m_mps) {
         mp->move(dt);
     }
 
@@ -70,6 +85,16 @@ void Universe::applyGravitation() {
             m_mps[i]->applyForce(f);
         }
     }
+}
+
+ImpulseMomentVal Universe::getImpulseMoment() {
+    ImpulseMomentVal L{};
+
+    for (const auto* mp : m_mps) {
+        L += mp->getImpulseMoment();
+    }
+
+    return L;
 }
 
 Energy Universe::getEnergy() const {
