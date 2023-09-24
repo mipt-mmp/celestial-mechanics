@@ -9,25 +9,26 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
 {
 
-    createCelestial(7.36e24_kg, 6.3e6_m,
+    createCelestial(5.97e24_kg, 6.3e6_m,
                     {0_m, 0_m},                    // pos
                     {0_m / 1_sec, 0_m / 1_sec}, // v
                     Qt::green
                     );
 
-    createCelestial(5.36e24_kg, 6.7e6_m,
-                    {4e8_m, 0_m},                  // pos
+    createCelestial(7.35e22_kg, 1.7e6_m,
+                    {3.8e8_m, 0_m},                  // pos
                     {0_m / 1_sec, 8e2_m / 1_sec}, // v
                     Qt::blue
                     );
 
-    createCelestial(5.36e24_kg, 6.7e6_m,
-                    {-4e8_m, 0_m},                  // pos
-                    {0_m / 1_sec, -8.001e2_m / 1_sec}, // v
-                    Qt::red
-                    );
+    // createCelestial(5.36e24_kg, 6.7e6_m,
+    //                 {-4e8_m, 0_m},                  // pos
+    //                 {0_m / 1_sec, -8.001e2_m / 1_sec}, // v
+    //                 Qt::red
+    //                 );
 
-
+    m_universe.shiftPoints();
+    m_universe.shiftVelocities();
 
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, Qt::black);
