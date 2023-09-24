@@ -15,6 +15,12 @@ class Universe {
 public:
   void addMaterialPoint(MaterialPoint *mp) { m_mps.push_back(mp); }
 
+  Position getMassCenter();
+  Velocity getVelocityCenter();
+
+  void shiftPoints();
+  void shiftVelocities();
+
   void simulateStep(Time dt = defaultDeltaTime);
 
   Energy getEnergy() const;

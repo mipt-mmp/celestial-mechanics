@@ -8,6 +8,46 @@ Time Universe::getTime() const
     return m_time;
 }
 
+Distance Universe::getMassCenter() {
+    MassMoment mass_moments;
+    Mass mass_sum;
+    
+    for (auto* mp : m_mps) {
+        mass_moments += mp->getPos() * mp->getMass();
+        mass_sum += mp->getMass();
+    }
+
+    return mass_moments / mass_sum;
+}
+
+Velocity Universe::getVelocityCenter() {
+    Impulse sum_impulse;
+    Mass mass_sum;
+
+    for (auto* mp : m_mps) {
+        sum_impulse += mp->getVelocity() * mp->getMass();
+        mass_sum += mp->getMass();
+    }
+
+    return sum_impulse / mass_sum;
+}
+
+void Universe::shiftPoints() {
+    Distance new_center = getMassCenter();
+
+    for (auto* mp : m_mps) {
+        mp->setPos(mp->getPos() - new_center);
+    }
+}
+
+void Universe::shiftVelocities() {
+    Velocity shift_velocity = getVelocityCenter();
+    
+    for (auto* mp : m_mps) {
+        mp->setVelocity(mp->getVelocity() - shift_velocity);
+    }
+}
+
 void Universe::simulateStep(Time dt) {
     applyGravitation();
     

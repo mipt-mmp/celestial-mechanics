@@ -126,7 +126,11 @@ using TimeVal         = Unit<num_t, 0, 1, 0>;   // s
 
 using MassVal         = Unit<num_t, 0, 0, 1>;   // kg
 
-using EnergyVal       = Unit<num_t, 2, -2, 1>;   // kg * m ^ 2 * s^-2
+using EnergyVal       = Unit<num_t, 2, -2, 1>;  // kg * m ^ 2 * s^-2
+
+using MassMomentVal   = Unit<num_t, 1, 0, 1>;   // kg * m
+
+using ImpulseVal      = Unit<num_t, 1, -1, 1>;  // kg * m * s^-1
 
 using Length = LengthVal;
 
@@ -135,10 +139,12 @@ using Vector = geom::Vector<T, UniverseDim, UnitTraits>;
 
 using Position = Vector<LengthVal>;
 using Distance = Vector<LengthVal>;
+using MassMoment = Vector<MassMomentVal>;
 
 using Velocity     = Vector<VelocityVal>;
 using Acceleration = Vector<AccelerationVal>;
 using Force        = Vector<ForceVal>;
+using Impulse      = Vector<ImpulseVal>;
 
 using Time = TimeVal;
 using Mass = MassVal;
