@@ -9,7 +9,6 @@
 
 class QSpinBox;
 class QPushButton;
-class QDateTimeEdit;
 
 class UniverseDisplayer : public QWidget
 {
@@ -18,31 +17,35 @@ public:
     explicit UniverseDisplayer(QWidget *parent = nullptr);
     ~UniverseDisplayer() override;
 
-    void assignSpinBox(QSpinBox* box);
-    void assignStopButton(QPushButton* button);
-    void assignUniverseTimer(QDateTimeEdit* timer);
+    void assignStopButton(QPushButton* button); //FIXME: No more valid way of doing things
+    void assignSpeedBox(QSpinBox *box);
+
+    [[nodiscard]] const phys::Universe::Metrics& getUniverseMetrics() const;
+
 private:
     phys::Universe m_universe;
+    phys::Universe::Metrics m_universeMetrics;
+
     QTimer* m_timer;
 
     PhysicsThread m_physThread;
 
     QPushButton* m_stoper = nullptr;
-    QDateTimeEdit* m_watch= nullptr;
 
     QVector<Celestial* > m_celestials;
 
     void createCelestial(phys::Mass mass, phys::Length radius, phys::Position pos, phys::Velocity v, QColor color = Qt::white);
+    void addCelestial(Celestial* celestial);
+    void clear();
 
 private slots:
     void setButtonState(bool);
 
 public slots:
     void redraw();
+
 signals:
     void recalced();
-
-    void displayEnergy(double e);
 };
 
 #endif // UNIVERSEDISPLAYER_HPP

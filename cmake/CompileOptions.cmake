@@ -18,6 +18,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     -Wno-disabled-macro-expansion
     -Wno-c++20-compat
     -Wno-ctad-maybe-unsupported
+    -Wno-unsafe-buffer-usage
     -Werror=return-type
     )
     

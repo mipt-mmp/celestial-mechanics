@@ -12,10 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    connect(m_ud, SIGNAL(displayEnergy(double)), ui->doubleSpinBox, SLOT(setValue(double)));
-    m_ud->assignSpinBox(ui->spinBox);
+    connect(m_ud, SIGNAL(recalced()), this, SLOT(updateMetrics()));
+
     m_ud->assignStopButton(ui->pushButton);
-    m_ud->assignUniverseTimer(ui->time);
+    m_ud->assignSpeedBox(ui->speedBox);
 }
 
 MainWindow::~MainWindow()
@@ -27,5 +27,23 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
     m_ud->setGeometry(rect());
+}
+
+void MainWindow::updateMetrics()
+{
+    ui->time->setDateTime(QDateTime::fromSecsSinceEpoch(static_cast<uint64_t>(m_ud->getUniverseMetrics().time->getVal())));
+
+    QString str;
+    QTextStream ss(&str);
+    ss << m_ud->getUniverseMetrics().energy;
+    ui->eDisplay->setText(str);
+
+    str.clear();
+    ss << m_ud->getUniverseMetrics().impulse.Len();
+    ui->pDisplay->setText(str);
+
+    str.clear();
+    ss << m_ud->getUniverseMetrics().impulsemoment.Len();
+    ui->pmDisplay->setText(str);
 }
 

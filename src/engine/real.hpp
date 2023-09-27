@@ -157,7 +157,7 @@ constexpr unreal_t sqrt(unreal_t x) {
 }
 
 template<typename OStream>
-OStream& operator<<(OStream& out, unreal_t x) {
+OStream& operator<<(OStream& out, const unreal_t x) {
   return out << x.getVal();
 }
 

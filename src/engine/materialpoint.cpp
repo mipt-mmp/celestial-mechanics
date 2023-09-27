@@ -5,7 +5,7 @@ namespace phys {
 void MaterialPoint::move(Time dt) {
     v_ += cur_f_ * dt / m_;
     pos_ += v_ * dt;
-    
+
     reset();
 }
 

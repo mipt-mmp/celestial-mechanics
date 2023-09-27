@@ -32,7 +32,17 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
+     <property name="suffix">
+      <string/>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0">
     <widget class="QDialogButtonBox" name="buttonBox">

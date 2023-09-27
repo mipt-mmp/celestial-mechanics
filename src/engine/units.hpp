@@ -153,6 +153,59 @@ using Time = TimeVal;
 using Mass = MassVal;
 using Energy = EnergyVal;
 
+constexpr const num_t Zepto = 1e-21;
+constexpr const num_t Atto  = 1e-18;
+constexpr const num_t Femto = 1e-15;
+constexpr const num_t Pico  = 1e-12;
+constexpr const num_t Nano  = 1e-9;
+constexpr const num_t Micro = 1e-6;
+constexpr const num_t Milli = 1e-3;
+
+constexpr const num_t Kilo   = 1e3;
+constexpr const num_t Mega   = 1e6;
+constexpr const num_t Giga   = 1e9;
+constexpr const num_t Tera   = 1e12;
+constexpr const num_t Peta   = 1e15;
+constexpr const num_t Exa    = 1e18;
+constexpr const num_t Zetta  = 1e21;
+constexpr const num_t Yotta  = 1e24;
+constexpr const num_t Ronna  = 1e27;
+constexpr const num_t Quetta = 1e30;
+
+constexpr static const std::pair<num_t, const char*> suffixes[] = {
+    {Zepto,  "z"},
+    {Atto ,  "a"},
+    {Femto,  "f"},
+    {Pico ,  "p"},
+    {Nano ,  "n"},
+    {Micro,  "u"},
+    {Milli,  "m"},
+    {1e0,     ""},
+    {Kilo,   "K"},
+    {Mega ,  "M"},
+    {Giga ,  "G"},
+    {Tera ,  "T"},
+    {Peta ,  "P"},
+    {Exa  ,  "E"},
+    {Zetta,  "Z"},
+    {Yotta,  "Y"},
+    {Ronna,  "R"},
+    {Quetta, "Q"},
+    };
+
+template<SomeUnit T>
+std::pair<num_t, const char*> getSuff(const T& unit) {
+    if(std::abs(*unit) / suffixes[0].first < 1.) {
+        return suffixes[0];
+    }
+    for(size_t i = 1; i < sizeof(suffixes) / sizeof(suffixes[0]); ++i) {
+        if(std::abs(*unit) / suffixes[i].first < 1.) {
+            return suffixes[i-1];
+        }
+    }
+    return suffixes[sizeof(suffixes) / sizeof(suffixes[0]) - 1];
+}
+
 template<SomeUnit T, SomeUnit U>
 auto operator*(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] * rhs)>{
     Vector<decltype(lhs[0] * rhs)> ans{};
@@ -187,6 +240,47 @@ Unit<num_t> GetSinusBetween(const Vector<T>& lhs, const Vector<U>& rhs) {
     return sin_alpha;
 }
 
+#define PRINT_UNIT(Unit, Name)               \
+do{                                          \
+        if constexpr (Unit != 0) {           \
+            name += Name;                    \
+            if constexpr (Unit != 1) {       \
+                name += "^" ;                \
+                name += std::to_string(Unit);\
+        }                                    \
+    }                                        \
+}while(0)
+
+template<typename T>
+struct UnitFormatter;
+
+template<typename Num, int Meter, int Sec, int KG, int K, int Mole, int Ampere, int Candela>
+struct UnitFormatter<Unit<Num, Meter, Sec, KG, K, Mole, Ampere, Candela>> {
+    static constexpr std::string str() {
+        std::string name = "";
+        PRINT_UNIT(Meter,   "m"  );
+        PRINT_UNIT(Sec,     "s"  );
+        PRINT_UNIT(KG,      "kg" );
+        PRINT_UNIT(K,       "K"  );
+        PRINT_UNIT(Mole,    "mol");
+        PRINT_UNIT(Ampere,  "A"  );
+        PRINT_UNIT(Candela, "cd" );
+        return name;
+    }
+};
+
+#undef PRINT_UNIT
+
+template<>
+struct UnitFormatter<ForceVal> {
+    static constexpr std::string str() {return "H";}
+};
+
+template<>
+struct UnitFormatter<EnergyVal> {
+    static constexpr std::string str() {return "J";}
+};
+
 }
 
 #if defined(PHYS_UNITS_PROVIDE_LITERALS)
@@ -200,28 +294,17 @@ PHYS_UNIT_LITERAL(Mass  , kg)
 PHYS_UNIT_LITERAL(ForceVal , H)
 #endif
 
-template<class OStream, typename Num, int Meter, int Sec, int KG, int K, int Mole, int Ampere, int Candela>
-OStream& operator<<(OStream& out, const phys::Unit<Num, Meter, Sec, KG, K, Mole, Ampere, Candela>& u) {
-    out << *u << ' ';
+template<class IStream, typename Num, int Meter, int Sec, int KG, int K, int Mole, int Ampere, int Candela>
+IStream& operator>>(IStream& in, phys::Unit<Num, Meter, Sec, KG, K, Mole, Ampere, Candela>& u) {
+    return in >> *u;
+}
 
-#define PRINT_UNIT(Unit, Name)              \
-    do{                                     \
-        if constexpr (Unit != 0) {          \
-            out << Name;                    \
-            if constexpr (Unit != 1) {      \
-                out << "^" << Unit << ' ';  \
-            }                               \
-        }                                   \
-    }while(0)
+template<class OStream, phys::SomeUnit T>
+OStream& operator<<(OStream& out, const T& u) {
 
-    PRINT_UNIT(Meter,   "m"  );
-    PRINT_UNIT(Sec,     "s"  );
-    PRINT_UNIT(KG,      "kg" );
-    PRINT_UNIT(K,       "K"  );
-    PRINT_UNIT(Mole,    "mol");
-    PRINT_UNIT(Ampere,  "A"  );
-    PRINT_UNIT(Candela, "cd" );
-#undef PRINT_UNIT
+    auto [div, pref] = phys::getSuff(u);
+    out << *u / div<< ' ' << pref << phys::UnitFormatter<T>::str().c_str();
+
     return out;
 }
 

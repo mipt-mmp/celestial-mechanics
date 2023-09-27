@@ -17,6 +17,10 @@ public:
     ~MainWindow() override;
 
     void resizeEvent(QResizeEvent* event) override;
+
+private slots:
+    void updateMetrics();
+
 private:
     UniverseDisplayer* m_ud;
     Ui::MainWindow *ui;

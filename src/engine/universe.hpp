@@ -11,23 +11,37 @@ class Universe {
   Time m_time;
   Time m_dt;
 
-  mutable Energy m_startEnergy{NAN};
-
 public:
+  struct Metrics {
+      Impulse impulse;
+      Energy energy;
+      ImpulseMoment impulsemoment;
+      Time time;
+  };
+
+  Metrics getMetrics() const {
+      return {
+        getImpulse(),
+        getEnergy(),
+        getImpulseMoment(),
+        m_time
+      };
+  }
+
   void addMaterialPoint(MaterialPoint *mp) { m_mps.push_back(mp); }
 
-  Position getMassCenter();
-  Velocity getVelocityCenter();
+  Position getMassCenter() const;
+  Velocity getVelocityCenter() const;
 
   void recalcOptimalDt();
   Time getOptimalDt();
 
-  void shiftPoints();
-  void shiftVelocities();
+  void shiftMassCenter();
 
   void simulateStep(Time dt = defaultDeltaTime);
 
-  ImpulseMomentVal getImpulseMoment();
+  ImpulseMoment getImpulseMoment() const;
+  Impulse getImpulse() const;
   Energy getEnergy() const;
 
   [[nodiscard]] Time getTime() const;

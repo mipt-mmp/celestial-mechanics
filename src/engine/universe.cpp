@@ -8,7 +8,7 @@ Time Universe::getTime() const
     return m_time;
 }
 
-Distance Universe::getMassCenter() {
+Distance Universe::getMassCenter() const {
     MassMoment mass_moments;
     Mass mass_sum;
     
@@ -20,13 +20,13 @@ Distance Universe::getMassCenter() {
     return mass_moments / mass_sum;
 }
 
-Velocity Universe::getVelocityCenter() {
+Velocity Universe::getVelocityCenter() const {
     Impulse sum_impulse{};
     Mass mass_sum{};
 
     for (auto* mp : m_mps) {
         sum_impulse += mp->getVelocity() * mp->getMass();
-        mass_sum += mp->getMass();
+        mass_sum    += mp->getMass();
     }
 
     return sum_impulse / mass_sum;
@@ -47,18 +47,13 @@ Time Universe::getOptimalDt() {
     return m_dt;
 }
 
-void Universe::shiftPoints() {
+void Universe::shiftMassCenter()
+{
     Distance new_center = getMassCenter();
+    Velocity shift_velocity = getVelocityCenter();
 
     for (auto* mp : m_mps) {
         mp->setPos(mp->getPos() - new_center);
-    }
-}
-
-void Universe::shiftVelocities() {
-    Velocity shift_velocity = getVelocityCenter();
-    
-    for (auto* mp : m_mps) {
         mp->setVelocity(mp->getVelocity() - shift_velocity);
     }
 }
@@ -87,14 +82,24 @@ void Universe::applyGravitation() {
     }
 }
 
-ImpulseMomentVal Universe::getImpulseMoment() {
-    ImpulseMoment L{};
-
-    for (const auto* mp : m_mps) {
-        L += mp->getImpulseMoment();
+ImpulseMoment Universe::getImpulseMoment() const
+{
+    ImpulseMoment p{};
+    for(const auto* mp: m_mps) {
+        p += mp->getImpulseMoment();
     }
 
-    return L.Len();
+    return p;
+}
+
+Impulse Universe::getImpulse() const
+{
+    Impulse p{};
+    for(const auto* mp: m_mps) {
+        p += mp->getImpulse();
+    }
+
+    return p;
 }
 
 Energy Universe::getEnergy() const {

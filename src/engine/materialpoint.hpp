@@ -60,6 +60,10 @@ public:
         return CrossProd(pos_, impulse);
     }
 
+    Impulse getImpulse() const {
+        return v_ * m_;
+    }
+
     Energy getKinetic() const { 
         Energy e = v_.Len2() * m_ / 2.l; 
         return e;

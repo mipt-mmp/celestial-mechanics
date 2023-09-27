@@ -3,7 +3,7 @@
 
 #include "materialpoint.hpp"
 #include <QWidget>
-
+class QTextStream;
 class Celestial : public QWidget
 {
     Q_OBJECT
@@ -18,7 +18,13 @@ public:
 
     void setColor(const QColor &newColor);
 
+    [[nodiscard]] QString getName() const;
+    void setName(const QString& newName);
+
+    phys::num_t getZ() const { return *m_object.getPos().Z(); }
+
 private:
+    QString m_name;
     QColor m_color;
     phys::MaterialPoint m_object = {{}, {}, 1_kg};
     phys::Length m_radius = 1_m;
@@ -43,5 +49,8 @@ private slots:
 signals:
 
 };
+
+
+QTextStream& operator>>(QTextStream& in, Celestial& cst);
 
 #endif // CELESTIAL_HPP

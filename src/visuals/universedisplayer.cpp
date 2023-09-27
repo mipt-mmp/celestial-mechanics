@@ -8,27 +8,43 @@
 UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
 {
-    createCelestial(5.97e24_kg, 6.3e6_m,
+
+    {
+    createCelestial(1.99e30_kg, 6.9e8_m,
                     {0_m, 0_m},                    // pos
                     {0_m / 1_sec, 0_m / 1_sec}, // v
-                    Qt::green
+                    Qt::yellow
                     );
 
-    createCelestial(7.35e22_kg, 1.7e6_m,
-                    {3.8e8_m, 0_m},                  // pos
-                    {0_m / 1_sec, 8e2_m / 1_sec}, // v
+    createCelestial(5.9e24_kg, 6.3e6_m,
+                    {1.5e11_m, 0_m},                  // pos
+                    {0_m / 1_sec, 30e3_m/ 1_sec}, // v
                     Qt::blue
                     );
 
-    // createCelestial(5.36e24_kg, 6.7e6_m,
-    //                 {-4e8_m, 0_m},                  // pos
-    //                 {0_m / 1_sec, -8.001e2_m / 1_sec}, // v
-    //                 Qt::red
-    //                 );
+    createCelestial(7.36e22_kg, 1.7e6_m,
+                    {1.5e11_m + 3.8e8_m, 0_m},                  // pos
+                    {0_m / 1_sec, 30e3_m / 1_sec, 1.03e3_m / 1_sec}, // v
+                    Qt::white
+                    );
+}
 
-    m_universe.shiftPoints();
-    m_universe.shiftVelocities();
+//{
+//    createCelestial(5.9e24_kg, 6.3e6_m,
+//                    {1.5e11_m, 0_m},                  // pos
+//                    {0_m / 1_sec}, // v
+//                    Qt::blue
+//                    );
+
+//    createCelestial(7.36e2_kg, 1.7e6_m,
+//                    {1.5e11_m + 3.8e8_m, 0_m},                  // pos
+//                    {0_m / 1_sec, 1.23e3_m / 1_sec}, // v
+//                    Qt::white
+//                    );
+//}
+    m_universe.shiftMassCenter();
     m_universe.recalcOptimalDt();
+    redraw();
 
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, Qt::black);
@@ -38,7 +54,7 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     m_timer = new QTimer(this);
     m_timer->setInterval(1000 / 60); // 60 fps
     m_timer->setSingleShot(false);
-    connect(m_timer,SIGNAL(timeout()),this, SLOT(redraw()));
+    connect(m_timer,SIGNAL(timeout()), this, SLOT(redraw()));
     m_timer->start();
 }
 
@@ -47,7 +63,7 @@ UniverseDisplayer::~UniverseDisplayer()
     m_physThread.terminate();
 }
 
-void UniverseDisplayer::assignSpinBox(QSpinBox *box)
+void UniverseDisplayer::assignSpeedBox(QSpinBox *box)
 {
     box->setValue(m_physThread.getPeriod());
     connect(box, SIGNAL(valueChanged(int)), &m_physThread, SLOT(setPeriod(int)));
@@ -62,21 +78,28 @@ void UniverseDisplayer::assignStopButton(QPushButton *button)
     connect(&m_physThread, SIGNAL(toggled(bool)), this, SLOT(setButtonState(bool)));
 }
 
-void UniverseDisplayer::assignUniverseTimer(QDateTimeEdit* timer)
+const phys::Universe::Metrics& UniverseDisplayer::getUniverseMetrics() const
 {
-    m_watch = timer;
+    return m_universeMetrics;
 }
 
 void UniverseDisplayer::createCelestial(phys::Mass mass, phys::Length radius, phys::Position pos, phys::Velocity v, QColor color)
 {
-    const phys::num_t Scale = 2e6l;
     Celestial* cel = new Celestial(mass, radius, this);
     cel->setPosition(pos);
     cel->setVelocity(v);
     cel->setColor(color);
-    cel->rescale(Scale);
-    m_celestials.push_back(cel);
-    m_universe.addMaterialPoint(cel->getObject());
+    addCelestial(cel);
+}
+
+void UniverseDisplayer::addCelestial(Celestial* celestial)
+{
+    celestial->setParent(this);
+    const phys::num_t Scale = 3.3e8l;
+//    const phys::num_t Scale = 2e6l;
+    celestial->rescale(Scale);
+    m_celestials.push_back(celestial);
+    m_universe.addMaterialPoint(celestial->getObject());
 }
 
 void UniverseDisplayer::setButtonState(bool running)
@@ -91,16 +114,21 @@ void UniverseDisplayer::redraw()
         m_physThread.stop();
     }
 
+    std::sort(m_celestials.begin(), m_celestials.end(), [](const Celestial* lhs, const Celestial* rhs) -> bool{
+        return lhs->getZ() < rhs->getZ();
+    });
+
+    for(qsizetype i = 0; i < m_celestials.size()-1; ++i) {
+        m_celestials[i]->stackUnder(m_celestials[i+1]);
+    }
+
     for(auto* celestial : m_celestials) {
         celestial->updatePosition();
     }
 
-    emit displayEnergy(m_universe.getEnergy()->getVal() / 1e20);
-    // std::cout << m_universe.getImpulseMoment() / 1e34 << std::endl; // TODO connect to window
+    m_universeMetrics = m_universe.getMetrics();
 
-    if(m_watch) {
-        m_watch->setDateTime(QDateTime::fromSecsSinceEpoch(static_cast<uint64_t>(m_universe.getTime()->getVal())));
-    }
+    emit recalced();
 
     if(!stopped) {
         m_physThread.cont();
