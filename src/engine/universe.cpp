@@ -88,13 +88,13 @@ void Universe::applyGravitation() {
 }
 
 ImpulseMomentVal Universe::getImpulseMoment() {
-    ImpulseMomentVal L{};
+    ImpulseMoment L{};
 
     for (const auto* mp : m_mps) {
         L += mp->getImpulseMoment();
     }
 
-    return L;
+    return L.Len();
 }
 
 Energy Universe::getEnergy() const {

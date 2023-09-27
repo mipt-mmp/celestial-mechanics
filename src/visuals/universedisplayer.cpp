@@ -96,7 +96,7 @@ void UniverseDisplayer::redraw()
     }
 
     emit displayEnergy(m_universe.getEnergy()->getVal() / 1e20);
-    // std::cout << m_universe.getImpulseMoment() << std::endl; // TODO connect to window
+    // std::cout << m_universe.getImpulseMoment() / 1e34 << std::endl; // TODO connect to window
 
     if(m_watch) {
         m_watch->setDateTime(QDateTime::fromSecsSinceEpoch(static_cast<uint64_t>(m_universe.getTime()->getVal())));
