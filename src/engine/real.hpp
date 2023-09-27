@@ -14,15 +14,15 @@ concept arithmetic = is_arithmetic<T>::value;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
 #elif defined(__GNUG__)
-#pragma GCC diagnostics push
-#pragma GCC diagnostics ignored "-Wfloat-equal"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
 #else
 #endif
 
 class unreal_t {
-
-private:
+public:
   using num_t = double;
+private:
   num_t m_x = 0.;
   num_t m_y = 0.;
 
@@ -162,14 +162,17 @@ OStream& operator<<(OStream& out, unreal_t x) {
 }
 
 template<typename IStream>
-IStream& operator>>(IStream& in, unreal_t x) {
-  return in >> x.getVal();
+IStream& operator>>(IStream& in, unreal_t& x) {
+  unreal_t::num_t xv;
+  in >> xv;
+  x = xv;
+  return in;
 }
 
 #if defined(__clang__)
 #pragma clang diagnostic pop
 #elif defined(__GNUG__)
-#pragma GCC diagnostics pop
+#pragma GCC diagnostic pop
 #else
 #endif
 

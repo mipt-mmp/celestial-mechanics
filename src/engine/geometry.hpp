@@ -20,6 +20,15 @@ namespace traits {
     };
 }
 
+namespace detail {
+template<typename T, typename ...Ts>
+struct all_ofT {
+
+};
+
+}
+
+
 template <typename T, std::size_t dim, template<typename> class traits = traits::StdTraits>
 struct Vector {
     std::array<T, dim> m_coord{};
@@ -28,10 +37,10 @@ struct Vector {
     constexpr Vector(const Vector&)            = default;
     constexpr Vector& operator=(const Vector&) = default;
 
-    constexpr Vector(std::initializer_list<T> l) {
-        for (std::size_t i = 0; i < std::min(dim, l.size()); ++i) {
-            m_coord[i] = *(l.begin() + i);
-        }
+    template<typename... Ts>
+    requires (std::is_same_v<T, Ts> &&...)
+    constexpr Vector(Ts...ts) : m_coord{ts...} {
+        static_assert(sizeof...(Ts) <= dim);
     }
 
     template <class U>
