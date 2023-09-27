@@ -153,14 +153,14 @@ struct Vector {
 template <typename T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
 using Point = Vector<T, Dim, traits>;
 
-// template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
-// constexpr auto operator,(const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
-//     decltype(lhs[0] * rhs[0]) ans{};
-//     for (std::size_t i = 0; i < Dim; ++i) {
-//         ans += lhs[i] * rhs[i];
-//     }
-//     return ans;
-// }
+template <class T, class U, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+constexpr auto operator,(const Vector<T, Dim, traits>& lhs, const Vector<U, Dim, traits>& rhs) {
+    decltype(lhs[0] * rhs[0]) ans{};
+    for (std::size_t i = 0; i < Dim; ++i) {
+        ans += lhs[i] * rhs[i];
+    }
+    return ans;
+}
 
 template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
 Vector<T, Dim, traits> operator+ (const Vector<T, Dim, traits>& lhs, const Vector<T, Dim, traits>& rhs) {
@@ -199,8 +199,11 @@ Vector<T, Dim, traits> operator-(const Vector<T, Dim, traits>& ths) {
     return v;
 }
 
-template <class T>
-using Vector2 = Vector<T, 2>;
+template <class T, template<typename> typename traits = traits::StdTraits>
+using Vector2 = Vector<T, 2, traits>;
+
+template <class T, template<typename> typename traits = traits::StdTraits>
+using Vector3 = Vector<T, 3, traits>;
 
 /**
  * @brief Cross product of two vectors.
@@ -209,9 +212,18 @@ using Vector2 = Vector<T, 2>;
  * @param rhs - right argument
  * @return constexpr T - cross product 
  */
-template <class T>
-constexpr T CrossProd(const Vector2<T>& lhs, const Vector2<T>& rhs) {
+template <class T, class U, template<typename> typename traits = traits::StdTraits>
+constexpr auto CrossProd(const Vector2<T, traits>& lhs, const Vector2<U, traits>& rhs) -> decltype(lhs.X() * rhs.Y()) {
     return lhs.X() * rhs.Y() - lhs.Y() * rhs.X();
+}
+
+template <class T, class U, template<typename> typename traits = traits::StdTraits>
+constexpr auto CrossProd(const Vector2<T, traits>& lhs, const Vector2<U, traits>& rhs) -> Vector3<decltype(lhs.X() * rhs.X()), traits>{
+    return {
+        lhs.Y() * rhs.Z() - lhs.Z() * rhs.Y(),
+        lhs.Z() * rhs.X() - lhs.X() * rhs.Z(),
+        lhs.X() * rhs.Y() - lhs.Y() * rhs.X(),
+        };
 }
 
 template <class T, std::size_t Dim, template<typename> typename traits = traits::StdTraits>

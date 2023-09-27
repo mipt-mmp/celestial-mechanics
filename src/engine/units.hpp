@@ -170,14 +170,6 @@ auto operator/(const Vector<T>& lhs, const U& rhs) -> Vector<decltype(lhs[0] / r
     return ans;
 }
 
-template<SomeUnit T, SomeUnit U>
-auto operator,(const Vector<T>& lhs, const Vector<U>& rhs) -> decltype(lhs[0] * rhs[0]) {
-    decltype(lhs[0] * rhs[0]) ans{};
-    for(size_t i = 0; i < UniverseDim; ++i) {
-        ans += lhs[i] * rhs[i];
-    }
-    return ans;
-}
 
 template<SomeUnit T>
 auto Normalize(const Vector<T>& t) {
