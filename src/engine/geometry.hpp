@@ -226,8 +226,10 @@ constexpr auto CrossProd(const Vector2<T, traits>& lhs, const Vector2<U, traits>
     return lhs.X() * rhs.Y() - lhs.Y() * rhs.X();
 }
 
-template <class T, class U, template<typename> typename traits = traits::StdTraits>
-constexpr auto CrossProd(const Vector2<T, traits>& lhs, const Vector2<U, traits>& rhs) -> Vector3<decltype(lhs.X() * rhs.X()), traits>{
+template <class T, class U, std::size_t Dim, template<typename> typename traits = traits::StdTraits>
+constexpr auto CrossProd(const Vector<T, Dim, traits>& lhs, const Vector<U, Dim, traits>& rhs) -> Vector<decltype(lhs.X() * rhs.X()), Dim, traits>{
+    static_assert(Dim == 3);
+    
     return {
         lhs.Y() * rhs.Z() - lhs.Z() * rhs.Y(),
         lhs.Z() * rhs.X() - lhs.X() * rhs.Z(),

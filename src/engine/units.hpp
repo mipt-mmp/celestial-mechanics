@@ -10,7 +10,7 @@
 
 namespace phys {
 
-const std::size_t UniverseDim = 2;
+const std::size_t UniverseDim = 3;
 
 namespace detail {
     class UnitBase{}; // Needed for fast abstraction
@@ -147,6 +147,7 @@ using Velocity     = Vector<VelocityVal>;
 using Acceleration = Vector<AccelerationVal>;
 using Force        = Vector<ForceVal>;
 using Impulse      = Vector<ImpulseVal>;
+using ImpulseMoment = Vector<ImpulseMomentVal>;
 
 using Time = TimeVal;
 using Mass = MassVal;
