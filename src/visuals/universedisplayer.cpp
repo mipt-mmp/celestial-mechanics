@@ -3,7 +3,7 @@
 #include <QTimer>
 #include <QSpinBox>
 #include <QPushButton>
-#include <QDateTimeEdit>>
+#include <QDateTimeEdit>
 
 UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
