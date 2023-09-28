@@ -15,6 +15,8 @@ class MaterialPoint {
 
 // Calculation only;
     Force cur_f_;
+    Acceleration prev_a;
+    Time prev_dt{INFINITY};
 public:
 
     MaterialPoint(const Position& pos, const Velocity& v, const Mass& m) : pos_(pos), v_(v), m_(m) {

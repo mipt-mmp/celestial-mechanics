@@ -8,6 +8,11 @@ Time Universe::getTime() const
     return m_time;
 }
 
+void Universe::setFluctoationPerion(const Time& newFluctoationPerion)
+{
+    m_fluctoationPerion = newFluctoationPerion;
+}
+
 Distance Universe::getMassCenter() const {
     MassMoment mass_moments;
     Mass mass_sum;
@@ -32,19 +37,52 @@ Velocity Universe::getVelocityCenter() const {
     return sum_impulse / mass_sum;
 }
 
+void Universe::fluctuate(num_t degree)
+{
+    auto* mp = m_mps[rand() % m_mps.size()];
+    Force f = phys::random<ForceVal>();
+    f *= degree;
+    mp->applyForce(f);
+}
+
 void Universe::recalcOptimalDt() {
+
+#if 0
     VelocityVal max_speed{};
 
     for (auto* mp : m_mps) {
         max_speed = std::max(mp->getVelocity().Len(), max_speed);
     }
 
-    const LengthVal normalizer = 2.5e4_m;
+    const LengthVal normalizer = 2.5e3_m;
     m_dt = normalizer / max_speed;
+#endif
+
+    num_t koef = INFINITY;
+
+    for(const auto* mp : m_mps) {
+        for(const auto* oth : m_mps) {
+            if(oth == mp) continue;
+            koef = std::min(koef, *(mp->getPos()-oth->getPos()).Len() / *(mp->getVelocity() - oth->getVelocity()).Len());
+        }
+    }
+
+    m_dt = (1_sec *= koef * config::DT_NORMALIZER);
+    m_dt = std::min(max_dt, std::max(min_dt, m_dt));
+//    std::cout << m_dt << '\n';
 }
 
 Time Universe::getOptimalDt() {
     return m_dt;
+}
+
+Length Universe::getMaxDist() const
+{
+    Length maxLen = 0_m;
+    for(size_t i = 0; i < m_mps.size(); ++i) {
+        maxLen = std::max(maxLen, m_mps[i]->getPos().Len());
+    }
+    return maxLen;
 }
 
 void Universe::shiftMassCenter()
@@ -61,6 +99,12 @@ void Universe::shiftMassCenter()
 void Universe::simulateStep(Time dt) {
     applyGravitation();
     
+    if((m_fluctoationPerion <=> 0_sec) != std::partial_ordering::equivalent && (m_time - m_lastFluctoation) > m_fluctoationPerion) {
+        fluctuate(config::FLUCTATION_DEGREE);
+        m_lastFluctoation = m_time;
+    }
+    recalcOptimalDt();
+    dt = m_dt;
     for (auto* mp: m_mps) {
         mp->move(dt);
     }

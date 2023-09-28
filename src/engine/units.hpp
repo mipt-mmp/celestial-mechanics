@@ -69,9 +69,16 @@ public:
         return Unit{*this} /= num;
     }
 
-    constexpr auto operator<=>(const Unit& rhs) const -> decltype(num_ <=> rhs.num_) {
+    constexpr std::partial_ordering operator<=>(const Unit& rhs) const {
         return num_ <=> rhs.num_;
     }
+
+    constexpr bool operator==(const Unit& rhs) const = default;
+    constexpr bool operator!=(const Unit& rhs) const = default;
+    constexpr bool operator<=(const Unit& rhs) const = default;
+    constexpr bool operator>=(const Unit& rhs) const = default;
+    constexpr bool operator< (const Unit& rhs) const = default;
+    constexpr bool operator> (const Unit& rhs) const = default;
 };
 
 template<typename Num, int Meter1, int Sec1, int KG1, int K1, int Mole1, int Ampere1, int Candela1,
@@ -229,6 +236,13 @@ template<SomeUnit T>
 auto Normalize(const Vector<T>& t) {
     assert(*t.Len() > 0.);
     return t / t.Len();
+}
+
+template<SomeUnit T>
+Vector<T> random() {
+    Vector<T> v{T{rand()}, T{rand()}, T{rand()}};
+    v /= *v.Len();
+    return v;
 }
 
 template<SomeUnit T, SomeUnit U>

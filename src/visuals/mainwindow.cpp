@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     connect(m_ud, SIGNAL(recalced()), this, SLOT(updateMetrics()));
+    connect(ui->fluctuationPeriodSetter, SIGNAL(valueChanged(double)), m_ud, SLOT(setFluctuationPeriod(double)));
 
     m_ud->assignStopButton(ui->pushButton);
     m_ud->assignSpeedBox(ui->speedBox);

@@ -38,12 +38,16 @@ private:
     void addCelestial(Celestial* celestial);
     void clear();
 
+    void resizeEvent(QResizeEvent* event) override;
+
+    void rescale();
 private slots:
     void setButtonState(bool);
 
 public slots:
     void redraw();
 
+    void setFluctuationPeriod(double period);
 signals:
     void recalced();
 };

@@ -11,6 +11,12 @@ class Universe {
   Time m_time;
   Time m_dt;
 
+  Time m_lastFluctoation = 0_sec;
+  Time m_fluctoationPerion = 0_sec;
+
+  static constexpr const Time min_dt = 1e-1_sec;
+  static constexpr const Time max_dt = 1e4_sec;
+
 public:
   struct Metrics {
       Impulse impulse;
@@ -33,8 +39,12 @@ public:
   Position getMassCenter() const;
   Velocity getVelocityCenter() const;
 
+  void fluctuate(num_t degree);
+
   void recalcOptimalDt();
   Time getOptimalDt();
+
+  Length getMaxDist() const;
 
   void shiftMassCenter();
 
@@ -45,6 +55,8 @@ public:
   Energy getEnergy() const;
 
   [[nodiscard]] Time getTime() const;
+
+  void setFluctoationPerion(const Time& newFluctoationPerion);
 
   private:
   Energy getPotentialGravitationEnergy() const;
