@@ -8,7 +8,7 @@
 UniverseDisplayer::UniverseDisplayer(QWidget *parent)
     : QWidget{parent}, m_physThread(m_universe, this)
 {
-#if 1
+#if 0
 {
     createCelestial(1.99e30_kg, 6.9e8_m,
                     {0_m, 0_m},                    // pos
@@ -29,7 +29,7 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
                     );
 }
 #endif
-#if 0
+#if 1
 {
     createCelestial(5.9e24_kg, 6.3e6_m,
                     {1.5e11_m, 0_m},                  // pos

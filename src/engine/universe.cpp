@@ -69,7 +69,6 @@ void Universe::recalcOptimalDt() {
 
     m_dt = (1_sec *= koef * config::DT_NORMALIZER);
     m_dt = std::min(max_dt, std::max(min_dt, m_dt));
-//    std::cout << m_dt << '\n';
 }
 
 Time Universe::getOptimalDt() {
@@ -103,13 +102,75 @@ void Universe::simulateStep(Time dt) {
         fluctuate(config::FLUCTATION_DEGREE);
         m_lastFluctoation = m_time;
     }
+
     recalcOptimalDt();
     dt = m_dt;
     for (auto* mp: m_mps) {
         mp->move(dt);
     }
 
+    fixUniverse(getMetrics());
+
     m_time += dt;
+}
+
+void Universe::fixUniverse(const Metrics& cur_metrics) {
+    // Fix works only for 2 points system :D
+    if (m_mps.size() != 2) {
+        return;
+    }
+
+    static const Metrics begin_metrics = cur_metrics;
+    
+    // new_p - p = delta_p
+    // 
+    
+    VelocityVal max_velocity{-INFINITY};
+    MaterialPoint* fastest_point = nullptr;
+    for (auto* mp: m_mps) {
+        if (mp->getVelocity().Len() > max_velocity) {
+            max_velocity = mp->getVelocity().Len();
+            fastest_point = mp;
+        }
+    }
+    assert(fastest_point);
+
+    EnergyVal delta_energy = cur_metrics.energy - begin_metrics.energy;
+    // a^2mv^2/2 = mv^2/2 - c
+    // a^2 = 1 + (2c)/(mv^2)
+    Unit<num_t> coef = Unit<num_t>{1.0} - (Unit<num_t>{2.0} * delta_energy) / (fastest_point->getMass() * max_velocity * max_velocity);
+
+    Velocity new_velocity = fastest_point->getVelocity();
+    new_velocity *= (*coef);
+    fastest_point->setVelocity(new_velocity);
+
+    auto get_errors = [] (const Metrics& first, const Metrics& second) {
+        return std::make_pair((first.impulse - second.impulse).Len(),
+                              (first.impulsemoment - second.impulsemoment).Len());
+    };
+
+    std::pair<ImpulseVal, ImpulseMomentVal> best_errors{get_errors(getMetrics(), begin_metrics)};
+
+    Velocity unrotated_velocity = fastest_point->getVelocity();
+    double degree_step = M_PI / 45.0;
+    for (double cur_degree = degree_step; cur_degree < 2.0 * M_PI; cur_degree += degree_step) {
+        auto cosine = Unit<num_t>{cos(cur_degree)};
+        auto sinus = Unit<num_t>{sin(cur_degree)};
+
+        Velocity rotated_velocity{unrotated_velocity.m_coord[0] * cosine - unrotated_velocity.m_coord[1] * sinus,
+                                  unrotated_velocity.m_coord[0] * sinus + unrotated_velocity.m_coord[1] * cosine};
+
+        fastest_point->setVelocity(rotated_velocity);
+        auto rotated_errors = get_errors(getMetrics(), begin_metrics);
+
+        if ((rotated_errors.first < best_errors.first) &&
+            (rotated_errors.second < best_errors.second)) {
+            best_errors = rotated_errors;
+            new_velocity = rotated_velocity;
+        }
+    }
+
+    fastest_point->setVelocity(new_velocity);
 }
 
 void Universe::applyGravitation() {
