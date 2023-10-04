@@ -14,6 +14,7 @@ class Universe {
   Time m_lastFluctoation = 0_sec;
   Time m_fluctoationPerion = 0_sec;
 
+
   static constexpr const Time min_dt = 1e-1_sec;
   static constexpr const Time max_dt = 1e4_sec;
 
@@ -49,6 +50,8 @@ public:
   void shiftMassCenter();
 
   void simulateStep(Time dt = defaultDeltaTime);
+
+  void fixUniverse(const Metrics& cur_metrics);
 
   ImpulseMoment getImpulseMoment() const;
   Impulse getImpulse() const;
