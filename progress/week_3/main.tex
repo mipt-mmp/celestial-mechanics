@@ -1,0 +1,130 @@
+\documentclass{beamer}
+
+\usepackage{cmap}
+\usepackage{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsmath,amsfonts,amssymb,amsthm,mathtools}
+\usepackage{listings}
+
+\title{Celestial Mechanics: Final Recap}
+
+\usetheme{Berlin}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\section{Recap}
+
+\begin{frame}[fragile]{Problem}
+  Создать систему из $2$ (или $n$) тел, смоделировать движение этих тел и действие их друг на друга при помощи закона всемирного тяготения.
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Чтобы смоделировать движение тел, мы воспольлзовались формулой зависимости координаты тела от времени
+  \[\overrightarrow{x} = \overrightarrow{x_0} + \overrightarrow{v} \cdot t + \dfrac{\overrightarrow{a} \cdot t^2}{2}\]
+  Или же в нашем случае\newline
+  \[d\overrightarrow{x} = \overrightarrow{v} \cdot dt + \dfrac{\overrightarrow{a} \cdot (dt)^2}{2}\]
+  Где ускорение вычисляется по формуле $\overrightarrow{a} = \dfrac{\overrightarrow{F}}{m}$
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Чтобы смоделировать действие тел друг на друга, для каждой пары тел $i, j$ мы применили силу гравитационного притяжения,\newline
+  полученную по формуле
+  \[\overrightarrow{F_{i,j}} = G \cdot \dfrac{m_i \cdot m_j}{\overrightarrow{r_{i,j}^2}}\]
+  Note: Чтобы получить правильное направление действия силы, можно доможнить ее на нормированный вектор\newline
+  направления: $-(\overrightarrow{x_i} - \overrightarrow{x_j})$
+\end{frame}
+
+\begin{frame}[fragile]{Problem}
+  Описанная ранее модель имела существенный недостаток: центр масс системы тел не совпадал с началом нашей системы\newline
+  отсчета, в связи с чем вся система пропадала с экрана спустя какое-то время.
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Решением проблемы стало, очевидно, перемещение начала системы отсчета в центр масс системы тел,\newline
+  который вычисляется следующим образом:
+  \[\overrightarrow{x_c} = \dfrac{\sum_{i = 1}^{n} m_i \cdot \overrightarrow{x_i}}{\sum_{i = 1}^{n} m_i}\]
+  Note: Таким образом, координаты тела в новой системе отсчета получаются так: $x_{new} = x_{orig} - x_c$
+\end{frame}
+
+\begin{frame}[fragile]{Problem}
+  При перемещении начала сисетмы отсчета в другое место, не сохраняются начальные (заданные пользователем) скорости тел,
+  так как это тоже вектора и в новой системе отсчета они будут иметь другие значения.
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Решение - так же, как и координаты тел, переместить их вектора скоростей с поправкой на мгновенный центр скоростей:
+  \[\overrightarrow{v_c} = \dfrac{\sum_{i = 1}^{n} m_i \cdot \overrightarrow{v_i}}{\sum_{i = 1}^{n} m_i}\]
+  Note: Таким образом, скорость тела в новой системе отсчета получаются так: $v_{new} = v_{orig} - v_c$
+\end{frame}
+
+\begin{frame}[fragile]{Problem}
+  Как мы вообще узнаем, корректна ли наша модель?
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Будем собирать метрики:
+  \begin{itemize}
+    \item<1-> Общую энергию системы (ведь мы знаем, что в изолированной системе работает ЗСЭ, поэтому
+    малость или отсутствие колебаний подтверждали бы корректность)
+    \item<2-> Сумму импульсов (все сказанное выше верно и для ЗСИ)
+    \item<3-> Сумму моментов импульсов (в отличие от суммы импульсов также дает информацию о том,
+    сохранятются ли расстояния и траектории)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Results}
+  Колебания:
+  \begin{itemize}
+    \item<1-> Увеличение на $\approx 0.4 \cdot {10}^6 Дж$ в год
+    \item<2-> Суммы импульсов в $\pm 7 \cdot {10}^6 \dfrac{м \cdot кг}{с}$
+    \item<3-> Увеличение на $\approx 0.1 \cdot {10}^{12} \dfrac{м^2 \cdot кг}{с}$
+  \end{itemize}
+  \pause
+  \pause
+  \pause Дают понять, что модель почти наверное корректная :-)\newline
+  \pause Note: Запомним эти результаты, мы к ним еще вернемся
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Решение - так же, как и координаты тел, переместить их вектора скоростей с поправкой на мгновенный центр скоростей:
+  \[\overrightarrow{v_c} = \dfrac{\sum_{i = 1}^{n} m_i \cdot \overrightarrow{v_i}}{\sum_{i = 1}^{n} m_i}\]
+  Note: Таким образом, скорость тела в новой системе отсчета получаются так: $v_{new} = v_{orig} - v_c$
+\end{frame}
+
+\begin{frame}[fragile]{Problem}
+  Мы выяснили, что модель $\pm$ корректна, но как мы узнаем устойчива ли она?
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Раз в секунду (или другое время) к слкчайному телу в системе будем добавлять случанйные флунктуации
+  (и назовем их метеоритами), посмотрим, разлетится ли система.\newline
+  Спойлер: система не разлетелась, значит она вернее всего устойчива
+\end{frame}
+
+\begin{frame}[fragile]{Problem}
+  Отлично! С корректной и устойчивой моделью очень удобно работать. За исключением маленбкого ньюанса:
+  $dt$ в нашей модели не может меняться динамический, подстраиваясб под систему и делая ее более правдоподобной.
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Будем вычислять $dt$ динамически, основываясь на следующем соотношении:
+  \[dt \sim \min_i \min_j \dfrac{\overrightarrow{r_{i,j}}}{\overrightarrow{v_{i,j}}}\]
+  Действительно, было бы удобно, если бы при увеличении скорости, $dt$ бы уменьшался,
+  ведь тогда мы будем делать более мелуие шаги, и ошибка будет накапливаться значительно медленнее.\newline
+  Прямая пропорциональность расстоянию дает нам возможность аккуратнее все пересчитывать когда тела
+  находятся близко друг к другу, что тоже может оказаться полезным.
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  Также дополнительно ограничим $dt$ сверху и снизу, чтобы не было пролагиваний при отрисвоке
+  из-за слишком долгих расчетов, и домножим на магическую константу, подобранную эмпирическим
+  путем для более красивых и точных результатов :-)
+\end{frame}
+
+\end{document}
