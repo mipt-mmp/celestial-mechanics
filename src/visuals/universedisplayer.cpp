@@ -31,16 +31,16 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
 #endif
 #if 1
 {
-    createCelestial(5.9e24_kg, 6.3e6_m,
-                    {1.5e11_m, 0_m},                  // pos
-                    {0_m / 1_sec}, // v
-                    Qt::blue
+   createCelestial(1.99e30_kg, 6.9e8_m,
+                    {0_m, 0_m},                    // pos
+                    {0_m / 1_sec, 0_m / 1_sec},    // v
+                    Qt::yellow
                     );
 
-    createCelestial(7.36e2_kg, 1.7e6_m,
-                    {1.5e11_m + 3.8e8_m, 0_m},                  // pos
-                    {0_m / 1_sec, 1.23e3_m / 1_sec}, // v
-                    Qt::white
+    createCelestial(5.9e24_kg, 6.3e6_m,
+                    {1.5e11_m, 0_m},                  // pos
+                    {0_m / 1_sec, 30e3_m/ 1_sec},     // v
+                    Qt::blue
                     );
 }
 #endif
