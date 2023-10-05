@@ -1,0 +1,15 @@
+[START]
+time = 01.01.1970
+energy = -205.95 * 10^6 J
+impulse_moment = 344.006 * 10^12 m^2 * kg / s
+
+[END_NO_FIX]
+time = 01.01.1980
+energy = -203.294 * 10^6 J
+impulse_moment = 346.528 * 10^12 m^2 * kg / s
+
+[END_FIX]
+time = 01.01.1971
+energy = -205.95 * 10^6 J
+impulse_moment = 344.08 * 10^12 m^2 * kg / s
+
