@@ -10,15 +10,15 @@ UniverseDisplayer::UniverseDisplayer(QWidget *parent)
 {
 #if 0
 {
-    createCelestial(1.99e30_kg, 6.9e8_m,
+    createCelestial(1.99e30_kg, 6.9e6_m,
                     {0_m, 0_m},                    // pos
-                    {0_m / 1_sec, 0_m / 1_sec},    // v
+                    {0_m / 1_sec, 0_m / 1_sec}, // v
                     Qt::yellow
                     );
 
-    createCelestial(5.9e24_kg, 6.3e6_m,
-                    {1.5e11_m, 0_m},                  // pos
-                    {0_m / 1_sec, 30e3_m/ 1_sec},     // v
+    createCelestial(5.9e29_kg, 6.3e6_m,
+                    {1e9_m, 0_m},                  // pos
+                    {0_m / 1_sec, 2e5_m/ 1_sec}, // v
                     Qt::blue
                     );
 
