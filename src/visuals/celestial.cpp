@@ -43,7 +43,7 @@ void Celestial::paintEvent(QPaintEvent */*event*/)
     QBrush brush(Qt::SolidPattern);
     brush.setColor(m_color);
     painter.setBrush(brush);
-    painter.drawEllipse(1, 1, m_display_size, m_display_size);
+    painter.drawEllipse(7, 7, m_display_size, m_display_size);
 }
 
 void Celestial::updatePosition()
@@ -51,14 +51,14 @@ void Celestial::updatePosition()
     QPoint pos = qobject_cast<QWidget *>(parent())->rect().center();
     QPoint offs{scaled(*m_object.getPos().X()), scaled(*m_object.getPos().Y())};
     pos += offs;
-    setGeometry(pos.x(), pos.y(), m_display_size + 4, m_display_size + 4);
+    setGeometry(pos.x(), pos.y(), m_display_size + 16, m_display_size + 16);
 }
 
 void Celestial::rescale(phys::num_t newScale)
 {
     m_scale = newScale;
     m_display_size = 2 * scaled(*m_radius);
-    m_display_size = std::max(2, m_display_size);
+    m_display_size = std::max(8, m_display_size);
     updatePosition();
 }
 
